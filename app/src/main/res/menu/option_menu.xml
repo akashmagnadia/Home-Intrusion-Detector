@@ -16,4 +16,38 @@
         app:showAsAction="never"
         android:visible="false"/>
 
+    <item
+        android:id="@+id/activate"
+        android:title="Activate"
+        app:showAsAction="never"
+        android:visible="true">
+
+        <menu>
+            <item
+                android:id="@+id/instantOn"
+                android:title="Activate Monitoring now"
+                app:showAsAction="never"
+                android:visible="true"/>
+
+            <item
+                android:id="@+id/delay30secondOn"
+                android:title="Activate Monitoring in 30 seconds"
+                app:showAsAction="never"
+                android:visible="true"/>
+
+            <item
+                android:id="@+id/delay1minuteOn"
+                android:title="Activate Monitoring in 1 minute"
+                app:showAsAction="never"
+                android:visible="true"/>
+
+            <item
+                android:id="@+id/delay2minuteOn"
+                android:title="Activate Monitoring in 2 minutes"
+                app:showAsAction="never"
+                android:visible="true"/>
+        </menu>
+
+    </item>
+
 </menu>

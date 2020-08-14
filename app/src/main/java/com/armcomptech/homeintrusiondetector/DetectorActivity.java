@@ -192,12 +192,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
               paint.setStyle(Style.STROKE);
               paint.setStrokeWidth(2.0f);
 
+              //TODO: Minimum Confidence
               float minimumConfidence = (float) 50/100;
 
               final List<Classifier.Recognition> mappedRecognitions =
                       new LinkedList<>();
 
               for (final Classifier.Recognition result : results) {
+                //TODO: Draw only if the person is detected
                 if (result.getTitle().equals("person")) {
                   final RectF location = result.getLocation();
                   if (location != null && result.getConfidence() >= minimumConfidence) {

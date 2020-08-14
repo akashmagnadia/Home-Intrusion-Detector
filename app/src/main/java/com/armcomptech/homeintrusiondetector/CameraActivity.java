@@ -41,10 +41,8 @@ import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
@@ -60,23 +58,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -86,12 +77,10 @@ import com.armcomptech.homeintrusiondetector.audio.RecognizeCommands;
 import com.armcomptech.homeintrusiondetector.env.ImageUtils;
 import com.armcomptech.homeintrusiondetector.env.Logger;
 import com.armcomptech.homeintrusiondetector.tflite.Classifier;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import org.tensorflow.lite.Interpreter;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -178,7 +167,6 @@ public abstract class CameraActivity extends AppCompatActivity
 
   private Interpreter tfLite;
   private long lastProcessingTimeMs;
-  private Handler handler = new Handler();
   private TextView selectedTextView = null;
   private HandlerThread backgroundThread;
   private Handler backgroundHandler;
@@ -187,6 +175,9 @@ public abstract class CameraActivity extends AppCompatActivity
   private Boolean doorbellCheckBox;
   private Boolean knockCheckBox;
   private Boolean personDetectionCheckBox;
+
+  private Handler monitoringSystemHandler = new Handler();
+  private Boolean monitoringSystemActive = false;
 
   /** Memory-map the model file in Assets. */
   private static MappedByteBuffer loadModelFile(AssetManager assets, String modelFilename)
@@ -227,6 +218,7 @@ public abstract class CameraActivity extends AppCompatActivity
     Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
     setSupportActionBar(toolbar);
     Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(true);
+    getSupportActionBar().setTitle("(Inactive) Home Intrusion Detector");
 
     if (hasPermission()) {
       setFragment();
@@ -660,8 +652,9 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
+  //TODO: Turn off when releasing official software
   public boolean isDebug() {
-    return false;
+    return true;
   }
 
   void checkForObject(List<Classifier.Recognition> results) {
@@ -669,12 +662,18 @@ public abstract class CameraActivity extends AppCompatActivity
 
       if (result.getTitle().equals("person")
               && (result.getConfidence() >= (float) (60 / 100))
+              && monitoringSystemActive
+              && personDetectionCheckBox
               && greenLightToTakePhoto) {
 
         // if green light for squirrel and confidence level is surpassed
         if (camera2Fragment != null) {
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (isDebug()) {
+              Toast.makeText(CameraActivity.this, "Detected person: " + result.getConfidence(), Toast.LENGTH_SHORT).show();
+            } else {
 //            camera2Fragment.takePicture();
+            }
           }
         } else {
           ((LegacyCameraConnectionFragment) fragment).takePicture();
@@ -778,8 +777,29 @@ public abstract class CameraActivity extends AppCompatActivity
           });
 
           alert.show();
+        } else {
+          sendEmail("Test Subject", "Test Body");
         }
-        sendEmail(getEmailAddresses(), "Test Subject", "Test Body");
+        break;
+
+      case R.id.instantOn:
+        Toast.makeText(CameraActivity.this, "Monitoring System in now activate", Toast.LENGTH_SHORT).show();
+        getSupportActionBar().setTitle("(Active) Home Intrusion Detector");
+        break;
+
+      case R.id.delay30secondOn:
+        Toast.makeText(CameraActivity.this, "Monitoring System will be active in 30 seconds", Toast.LENGTH_SHORT).show();
+        delayedMonitoringSystemOn(30);
+        break;
+
+      case R.id.delay1minuteOn:
+        Toast.makeText(CameraActivity.this, "Monitoring System will be active in 1 minute", Toast.LENGTH_SHORT).show();
+        delayedMonitoringSystemOn(60);
+        break;
+
+      case R.id.delay2minuteOn:
+        Toast.makeText(CameraActivity.this, "Monitoring System will be active in 2 minutes", Toast.LENGTH_SHORT).show();
+        delayedMonitoringSystemOn(120);
         break;
 
       default:
@@ -792,11 +812,11 @@ public abstract class CameraActivity extends AppCompatActivity
     return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
   }
 
-  private void sendEmail(List toEmailList, String Subject, String Body) {
+  private void sendEmail(String Subject, String Body) {
     String fromEmail = getString(R.string.email);
     String fromPassword = getString(R.string.password);
 
-    new SendMailTask(this).execute(fromEmail, fromPassword, toEmailList, Subject, Body);
+    new SendMailTask(this).execute(fromEmail, fromPassword, getEmailAddresses(), Subject, Body);
   }
 
 
@@ -964,20 +984,32 @@ public abstract class CameraActivity extends AppCompatActivity
 
                     switch (result.foundCommand) {
                       case "glass_breaking":
-                        if (glassBreakingCheckBox) {
-                          Toast.makeText(CameraActivity.this, "Detected glass_breaking: " + result.score, Toast.LENGTH_SHORT).show();
+                        if (glassBreakingCheckBox && monitoringSystemActive) {
+                          if (isDebug()) {
+                            Toast.makeText(CameraActivity.this, "Detected glass_breaking: " + result.score, Toast.LENGTH_SHORT).show();
+                          } else {
+
+                          }
                         }
                         break;
 
                       case "doorbell":
-                        if (doorbellCheckBox) {
-                          Toast.makeText(CameraActivity.this, "Detected doorbell: " + result.score, Toast.LENGTH_SHORT).show();
+                        if (doorbellCheckBox && monitoringSystemActive) {
+                          if (isDebug()) {
+                            Toast.makeText(CameraActivity.this, "Detected doorbell: " + result.score, Toast.LENGTH_SHORT).show();
+                          } else {
+
+                          }
                         }
                         break;
 
                       case "knock":
-                        if (knockCheckBox) {
-                          Toast.makeText(CameraActivity.this, "Detected knock: " + result.score, Toast.LENGTH_SHORT).show();
+                        if (knockCheckBox && monitoringSystemActive) {
+                          if (isDebug()) {
+                            Toast.makeText(CameraActivity.this, "Detected knock: " + result.score, Toast.LENGTH_SHORT).show();
+                          } else {
+
+                          }
                         }
                         break;
                     }
@@ -1017,5 +1049,14 @@ public abstract class CameraActivity extends AppCompatActivity
     } catch (InterruptedException e) {
       Log.e("amlan", "Interrupted when stopping background thread", e);
     }
+  }
+
+  private void delayedMonitoringSystemOn(long seconds) {
+    Runnable monitoringActiveRunnable = () -> {
+      monitoringSystemActive = true;
+      getSupportActionBar().setTitle("(Active) Home Intrusion Detector"); //change the title to notify user
+      Toast.makeText(CameraActivity.this, "Monitoring System in now activate", Toast.LENGTH_SHORT).show();
+    };
+    monitoringSystemHandler.postDelayed(monitoringActiveRunnable, seconds * 1000);
   }
 }
