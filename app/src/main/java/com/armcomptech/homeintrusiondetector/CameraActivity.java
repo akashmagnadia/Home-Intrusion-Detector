@@ -74,9 +74,11 @@ import androidx.preference.PreferenceManager;
 
 import com.armcomptech.homeintrusiondetector.EmailLogic.SendMailTask;
 import com.armcomptech.homeintrusiondetector.audio.RecognizeCommands;
-import com.armcomptech.homeintrusiondetector.env.ImageUtils;
-import com.armcomptech.homeintrusiondetector.env.Logger;
-import com.armcomptech.homeintrusiondetector.tflite.Classifier;
+import com.armcomptech.homeintrusiondetector.video.CameraConnectionFragment;
+import com.armcomptech.homeintrusiondetector.video.LegacyCameraConnectionFragment;
+import com.armcomptech.homeintrusiondetector.video.env.ImageUtils;
+import com.armcomptech.homeintrusiondetector.video.env.Logger;
+import com.armcomptech.homeintrusiondetector.video.tflite.Classifier;
 
 import org.tensorflow.lite.Interpreter;
 
@@ -178,6 +180,11 @@ public abstract class CameraActivity extends AppCompatActivity
 
   private Handler monitoringSystemHandler = new Handler();
   private Boolean monitoringSystemActive = false;
+
+  //TODO: Turn off when releasing official software
+  public boolean isDebug() {
+    return true;
+  }
 
   /** Memory-map the model file in Assets. */
   private static MappedByteBuffer loadModelFile(AssetManager assets, String modelFilename)
@@ -652,19 +659,13 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
-  //TODO: Turn off when releasing official software
-  public boolean isDebug() {
-    return true;
-  }
-
-  void checkForObject(List<Classifier.Recognition> results) {
+  public void checkForObject(List<Classifier.Recognition> results) {
     for (final Classifier.Recognition result : results) {
 
       if (result.getTitle().equals("person")
               && (result.getConfidence() >= (float) (60 / 100))
               && monitoringSystemActive
-              && personDetectionCheckBox
-              && greenLightToTakePhoto) {
+              && personDetectionCheckBox) {
 
         // if green light for squirrel and confidence level is surpassed
         if (camera2Fragment != null) {
@@ -672,13 +673,24 @@ public abstract class CameraActivity extends AppCompatActivity
             if (isDebug()) {
               Toast.makeText(CameraActivity.this, "Detected person: " + result.getConfidence(), Toast.LENGTH_SHORT).show();
             } else {
-              camera2Fragment.takePicture();
+              if (greenLightToTakePhoto) {
+                camera2Fragment.takePicture();
+              }
+
               sendEmail("Home Intrusion Alert - person Detected",
                       "Your phone may have saw a person. Your phone as taken a picture.");
             }
           }
         } else {
-          ((LegacyCameraConnectionFragment) fragment).takePicture();
+          if (isDebug()) {
+            Toast.makeText(CameraActivity.this, "Detected person: " + result.getConfidence(), Toast.LENGTH_SHORT).show();
+          } else {
+            if (greenLightToTakePhoto) {
+              ((LegacyCameraConnectionFragment) fragment).takePicture();
+            }
+              sendEmail("Home Intrusion Alert - person Detected",
+                    "Your phone may have saw a person. Your phone as taken a picture.");
+          }
         }
       }
     }
@@ -755,7 +767,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
       case R.id.testEmail:
         if (getEmailAddresses().isEmpty()) {
-          askForValidEmailAddress();
+          askForValidEmailAddress(true, 0);
         } else {
           sendEmail("Test Subject", "Test Body");
         }
@@ -1033,19 +1045,24 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   private void delayedMonitoringSystemOn(long seconds) {
+    //TODO: if system is active tell user
     if (getEmailAddresses().isEmpty()) {
-      askForValidEmailAddress();
+      askForValidEmailAddress(false, seconds);
     } else {
-      Runnable monitoringActiveRunnable = () -> {
-        monitoringSystemActive = true;
-        getSupportActionBar().setTitle("(Active) Home Intrusion Detector"); //change the title to notify user
-        Toast.makeText(CameraActivity.this, "Monitoring System in now activate", Toast.LENGTH_SHORT).show();
-      };
-      monitoringSystemHandler.postDelayed(monitoringActiveRunnable, seconds * 1000);
+      delayedMonitoringSystemOn(seconds);
     }
   }
 
-  private void askForValidEmailAddress() {
+  private void delayedMonitoringSystemOnHelper(long seconds) {
+    Runnable monitoringActiveRunnable = () -> {
+      monitoringSystemActive = true;
+      getSupportActionBar().setTitle("(Active) Home Intrusion Detector"); //change the title to notify user
+      Toast.makeText(CameraActivity.this, "Monitoring System in now activate", Toast.LENGTH_SHORT).show();
+    };
+    monitoringSystemHandler.postDelayed(monitoringActiveRunnable, seconds * 1000);
+  }
+
+  private void askForValidEmailAddress(Boolean testEmail, long seconds) {
     final EditText edittext = new EditText(this);
     AlertDialog.Builder alert = new AlertDialog.Builder(this);
     alert.setTitle("Add Email Address");
@@ -1057,6 +1074,9 @@ public abstract class CameraActivity extends AppCompatActivity
       public void onClick(DialogInterface dialog, int whichButton) {
         if (isValidEmail(String.valueOf(edittext.getText()))) {
           addEmailAddress(String.valueOf(edittext.getText()));
+          if (!testEmail) {
+            delayedMonitoringSystemOnHelper(seconds);
+          }
         } else {
           Toast.makeText(CameraActivity.this, "Enter a valid email Address", Toast.LENGTH_LONG).show();
         }

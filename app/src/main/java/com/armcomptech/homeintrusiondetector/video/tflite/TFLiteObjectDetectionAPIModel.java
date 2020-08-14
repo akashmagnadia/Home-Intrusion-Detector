@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-package com.armcomptech.homeintrusiondetector.tflite;
+package com.armcomptech.homeintrusiondetector.video.tflite;
 
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -21,7 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Trace;
 
-import com.armcomptech.homeintrusiondetector.env.Logger;
+import com.armcomptech.homeintrusiondetector.video.env.Logger;
 
 import org.tensorflow.lite.Interpreter;
 

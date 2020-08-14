@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-package com.armcomptech.homeintrusiondetector.tracking;
+package com.armcomptech.homeintrusiondetector.video.tracking;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -29,10 +29,10 @@ import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
 
-import com.armcomptech.homeintrusiondetector.env.BorderedText;
-import com.armcomptech.homeintrusiondetector.env.ImageUtils;
-import com.armcomptech.homeintrusiondetector.env.Logger;
-import com.armcomptech.homeintrusiondetector.tflite.Classifier.Recognition;
+import com.armcomptech.homeintrusiondetector.video.env.BorderedText;
+import com.armcomptech.homeintrusiondetector.video.env.ImageUtils;
+import com.armcomptech.homeintrusiondetector.video.env.Logger;
+import com.armcomptech.homeintrusiondetector.video.tflite.Classifier.Recognition;
 
 import java.util.LinkedList;
 import java.util.List;

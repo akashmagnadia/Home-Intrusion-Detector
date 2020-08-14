@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-package com.armcomptech.homeintrusiondetector.tflite;
+package com.armcomptech.homeintrusiondetector.video.tflite;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;

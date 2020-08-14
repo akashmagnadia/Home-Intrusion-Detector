@@ -52,7 +52,7 @@
             android:label="@string/title_activity_settings"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".DetectorActivity"
+            android:name=".video.DetectorActivity"
             android:label="@string/tfe_od_app_name"
             android:screenOrientation="fullSensor">
             <intent-filter>

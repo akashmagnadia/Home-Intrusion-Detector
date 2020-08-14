@@ -13,9 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-package com.armcomptech.homeintrusiondetector.customview;
+package com.armcomptech.homeintrusiondetector.video.customview;
 
-import com.armcomptech.homeintrusiondetector.tflite.Classifier.Recognition;
+import com.armcomptech.homeintrusiondetector.video.tflite.Classifier.Recognition;
 
 import java.util.List;
 

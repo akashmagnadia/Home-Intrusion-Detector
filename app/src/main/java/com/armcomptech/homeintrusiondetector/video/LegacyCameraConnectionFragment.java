@@ -1,4 +1,4 @@
-package com.armcomptech.homeintrusiondetector;
+package com.armcomptech.homeintrusiondetector.video;
 
 /*
  * Copyright 2020 Akash Magnadia
@@ -40,9 +40,10 @@ import android.view.ViewGroup;
 
 import androidx.annotation.RequiresApi;
 
-import com.armcomptech.homeintrusiondetector.customview.AutoFitTextureView;
-import com.armcomptech.homeintrusiondetector.env.ImageUtils;
-import com.armcomptech.homeintrusiondetector.env.Logger;
+import com.armcomptech.homeintrusiondetector.R;
+import com.armcomptech.homeintrusiondetector.video.customview.AutoFitTextureView;
+import com.armcomptech.homeintrusiondetector.video.env.ImageUtils;
+import com.armcomptech.homeintrusiondetector.video.env.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;

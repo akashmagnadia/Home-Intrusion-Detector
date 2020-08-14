@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.armcomptech.homeintrusiondetector;
+package com.armcomptech.homeintrusiondetector.video;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -37,15 +36,16 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
-import androidx.preference.PreferenceManager;
 
-import com.armcomptech.homeintrusiondetector.customview.OverlayView;
-import com.armcomptech.homeintrusiondetector.env.BorderedText;
-import com.armcomptech.homeintrusiondetector.env.ImageUtils;
-import com.armcomptech.homeintrusiondetector.env.Logger;
-import com.armcomptech.homeintrusiondetector.tflite.Classifier;
-import com.armcomptech.homeintrusiondetector.tflite.TFLiteObjectDetectionAPIModel;
-import com.armcomptech.homeintrusiondetector.tracking.MultiBoxTracker;
+import com.armcomptech.homeintrusiondetector.CameraActivity;
+import com.armcomptech.homeintrusiondetector.R;
+import com.armcomptech.homeintrusiondetector.video.customview.OverlayView;
+import com.armcomptech.homeintrusiondetector.video.env.BorderedText;
+import com.armcomptech.homeintrusiondetector.video.env.ImageUtils;
+import com.armcomptech.homeintrusiondetector.video.env.Logger;
+import com.armcomptech.homeintrusiondetector.video.tflite.Classifier;
+import com.armcomptech.homeintrusiondetector.video.tflite.TFLiteObjectDetectionAPIModel;
+import com.armcomptech.homeintrusiondetector.video.tracking.MultiBoxTracker;
 
 import java.io.IOException;
 import java.util.LinkedList;

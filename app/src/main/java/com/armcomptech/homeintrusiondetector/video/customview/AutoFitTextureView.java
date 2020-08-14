@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.armcomptech.homeintrusiondetector.customview;
+package com.armcomptech.homeintrusiondetector.video.customview;
 
 import android.content.Context;
 import android.util.AttributeSet;

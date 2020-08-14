@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.armcomptech.homeintrusiondetector;
+package com.armcomptech.homeintrusiondetector.video;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -67,8 +67,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
-import com.armcomptech.homeintrusiondetector.customview.AutoFitTextureView;
-import com.armcomptech.homeintrusiondetector.env.Logger;
+import com.armcomptech.homeintrusiondetector.CameraActivity;
+import com.armcomptech.homeintrusiondetector.R;
+import com.armcomptech.homeintrusiondetector.SettingsActivity;
+import com.armcomptech.homeintrusiondetector.video.customview.AutoFitTextureView;
+import com.armcomptech.homeintrusiondetector.video.env.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
