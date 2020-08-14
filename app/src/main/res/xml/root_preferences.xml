@@ -1,0 +1,93 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="Detection Box">
+        <SwitchPreference
+            android:key="generalBoxSwitch"
+            android:title="Show Boxes around animals"
+            android:summaryOff="Boxes won't show up around detected animals"
+            android:summaryOn="Boxes will show up around detected animals"
+            android:defaultValue="true"
+            app:isPreferenceVisible="true" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="generalBoxSwitch"
+            android:key="defaultGeneralBoxCheckBox"
+            android:title="Use Default Confidence Level"
+            android:summaryOn="Using Custom Confidence Level"
+            android:summaryOff="Using default Confidence Level at 60%"/>
+        <SeekBarPreference
+            android:dependency="defaultGeneralBoxCheckBox"
+            android:key="generalBoxSeekBar"
+            android:title="Box Sensitivity"
+            android:summary="Move slider Left to show boxes at confidence level meaning more often"
+            android:max="100"
+            android:defaultValue="10"
+            app:isPreferenceVisible="true" />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="Animals Category Settings">
+        <SwitchPreference
+            android:key="generalSwitchTakePhoto"
+            android:summaryOff="Photos won't be taken automatically"
+            android:summaryOn="Photos will be taken based upon animal detection using machine learning"
+            android:title="Take Photos automatically"
+            app:isPreferenceVisible="true"/>
+
+
+        <PreferenceCategory android:title="Bird">
+            <SwitchPreference
+                android:key="birdSwitchTakePhoto"
+                android:summaryOff="Photos of the birds won't be taken"
+                android:summaryOn="Photos of the birds will be taken upon detection"
+                android:title="Take Photos of the Birds"
+                app:dependency="generalSwitchTakePhoto"
+                app:isPreferenceVisible="true"/>
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:dependency="birdSwitchTakePhoto"
+                android:key="defaultBirdTakePhotoCheckBox"
+                android:title="Use Default Confidence Level"
+                android:summaryOn="Using Custom Confidence Level"
+                android:summaryOff="Using default Confidence Level at 60%"/>
+            <SeekBarPreference
+                android:defaultValue="10"
+                android:dependency="defaultBirdTakePhotoCheckBox"
+                android:key="birdSeekBar"
+                android:max="100"
+                android:summary="Move slider Left to take pictures at lower confidence level meaning more often"
+                android:title="Bird AutoCapture Confidence"
+                app:isPreferenceVisible="true" />
+        </PreferenceCategory>
+
+
+        <PreferenceCategory android:title="Squirrel">
+            <SwitchPreference
+                android:key="squirrelSwitchTakePhoto"
+                android:summaryOff="Photos of the squirrels won't be taken"
+                android:summaryOn="Photos of the squirrels will be taken upon detection"
+                android:title="Take Photos of the Squirrels"
+                app:dependency="generalSwitchTakePhoto"
+                app:isPreferenceVisible="true"/>
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:dependency="squirrelSwitchTakePhoto"
+                android:key="defaultSquirrelTakePhotoCheckBox"
+                android:title="Use Default Confidence Level"
+                android:summaryOn="Using Custom Confidence Level"
+                android:summaryOff="Using default Confidence Level at 60%"/>
+            <SeekBarPreference
+                android:defaultValue="10"
+                android:key="squirrelSeekBar"
+                android:max="100"
+                android:summary="Move slider Left to take pictures at lower confidence level meaning more often"
+                android:title="squirrel AutoCapture Confidence"
+                app:dependency="defaultSquirrelTakePhotoCheckBox"
+                app:isPreferenceVisible="true" />
+        </PreferenceCategory>
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
