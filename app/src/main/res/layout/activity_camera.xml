@@ -15,7 +15,6 @@
 -->
 
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -32,8 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/toolbar"
-            android:layout_marginTop="0dp"
-            tools:context="org.tensorflow.demo.CameraActivity" />
+            android:layout_marginTop="0dp" />
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -41,7 +39,7 @@
             android:layout_height="?attr/actionBarSize"
             android:layout_alignParentTop="true"
             app:titleTextColor="#FFFFFF"
-            android:background="@color/tfe_color_accent">
+            android:background="@color/color_accent">
 
         </androidx.appcompat.widget.Toolbar>
 

@@ -57,12 +57,10 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -110,8 +108,6 @@ public abstract class CameraActivity extends AppCompatActivity
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
   private static final String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
   private static final String READ_EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
-  private static final int REQUEST_INVITE = 100;
-  private static final String TAG = "CameraActivity";
   protected int previewWidth = 0;
   protected int previewHeight = 0;
   private Handler VideoHandler;
@@ -151,8 +147,6 @@ public abstract class CameraActivity extends AppCompatActivity
   // UI elements.
   private static final int REQUEST_RECORD_AUDIO = 13;
   private static final String LOG_TAG = CameraActivity.class.getSimpleName();
-  private static View viewSnackBarActivityMain;
-  private static View viewSnackBarSettings;
 
   // Working variables.
   short[] recordingBuffer = new short[RECORDING_LENGTH];
@@ -163,15 +157,14 @@ public abstract class CameraActivity extends AppCompatActivity
   private Thread recognitionThread;
   private final ReentrantLock recordingBufferLock = new ReentrantLock();
 
-  private List<String> labels = new ArrayList<String>();
+  private List<String> labels = new ArrayList<>();
   private List<String> displayedLabels = new ArrayList<>();
   private RecognizeCommands recognizeCommands = null;
 
   private Interpreter tfLite;
   private long lastProcessingTimeMs;
-  private TextView selectedTextView = null;
-  private HandlerThread backgroundThread;
-  private Handler backgroundHandler;
+  private HandlerThread audioBackgroundThread;
+  private Handler audioBackgroundHandler;
 
   private Boolean glassBreakingCheckBox;
   private Boolean doorbellCheckBox;
@@ -220,7 +213,7 @@ public abstract class CameraActivity extends AppCompatActivity
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    setContentView(R.layout.tfe_od_activity_camera);
+    setContentView(R.layout.activity_camera);
     Toolbar toolbar = findViewById(R.id.toolbar);
     Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
     setSupportActionBar(toolbar);
@@ -1023,22 +1016,22 @@ public abstract class CameraActivity extends AppCompatActivity
   private static final String HANDLE_THREAD_NAME = "AudioBackground";
 
   private void startBackgroundThread() {
-    backgroundThread = new HandlerThread(HANDLE_THREAD_NAME);
-    backgroundThread.start();
-    backgroundHandler = new Handler(backgroundThread.getLooper());
-    backgroundHandler.post(() -> tfLite.setNumThreads(4));
+    audioBackgroundThread = new HandlerThread(HANDLE_THREAD_NAME);
+    audioBackgroundThread.start();
+    audioBackgroundHandler = new Handler(audioBackgroundThread.getLooper());
+    audioBackgroundHandler.post(() -> tfLite.setNumThreads(4));
   }
 
   private void stopBackgroundThread() {
-    if (backgroundThread != null) {
-      backgroundThread.quitSafely();
+    if (audioBackgroundThread != null) {
+      audioBackgroundThread.quitSafely();
     }
     try {
-      if (backgroundThread != null) {
-        backgroundThread.join();
+      if (audioBackgroundThread != null) {
+        audioBackgroundThread.join();
       }
-      backgroundThread = null;
-      backgroundHandler = null;
+      audioBackgroundThread = null;
+      audioBackgroundHandler = null;
     } catch (InterruptedException e) {
       Log.e("amlan", "Interrupted when stopping background thread", e);
     }

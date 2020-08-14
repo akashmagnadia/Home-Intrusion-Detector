@@ -146,7 +146,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             canvas -> {
               tracker.draw(canvas);
               if (isDebug()) {
-                tracker.drawDebug(canvas);
+//                tracker.drawDebug(canvas);
               }
             });
 
@@ -224,7 +224,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   @Override
   protected int getLayoutId() {
-    return R.layout.tfe_od_camera_connection_fragment_tracking;
+    return R.layout.camera_connection_fragment_tracking;
   }
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

@@ -574,9 +574,9 @@ public class CameraConnectionFragment extends Fragment {
     } catch (final NullPointerException e) {
       // Currently an NPE is thrown when the Camera2API is used but not supported on the
       // device this code runs.
-      ErrorDialog.newInstance(getString(R.string.tfe_od_camera_error))
+      ErrorDialog.newInstance(getString(R.string.camera_error))
               .show(getChildFragmentManager(), FRAGMENT_DIALOG);
-      throw new IllegalStateException(getString(R.string.tfe_od_camera_error));
+      throw new IllegalStateException(getString(R.string.camera_error));
     }
 
     cameraConnectionCallback.onPreviewSizeChosen(previewSize, sensorOrientation);
@@ -716,8 +716,6 @@ public class CameraConnectionFragment extends Fragment {
 
                 @Override
                 public void onConfigureFailed(final CameraCaptureSession cameraCaptureSession) {
-                  showToast("Going to the settings and coming back should help see the camera preview");
-
                   AlertDialog.Builder builder
                           = new AlertDialog
                           .Builder(CameraActivity.getContext());

@@ -1,93 +1,50 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory android:title="Detection Box">
-        <SwitchPreference
-            android:key="generalBoxSwitch"
-            android:title="Show Boxes around animals"
-            android:summaryOff="Boxes won't show up around detected animals"
-            android:summaryOn="Boxes will show up around detected animals"
-            android:defaultValue="true"
-            app:isPreferenceVisible="true" />
+    <EditTextPreference
+        android:defaultValue="Default value"
+        android:key="enterEmailHere"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:summary="Add Email Address(es) where you would like to receive intrusion alert"
+        android:title="Click Here to add email address" />
+
+    <PreferenceCategory app:title="Contacts">
+
         <CheckBoxPreference
-            android:defaultValue="true"
-            android:dependency="generalBoxSwitch"
-            android:key="defaultGeneralBoxCheckBox"
-            android:title="Use Default Confidence Level"
-            android:summaryOn="Using Custom Confidence Level"
-            android:summaryOff="Using default Confidence Level at 60%"/>
-        <SeekBarPreference
-            android:dependency="defaultGeneralBoxCheckBox"
-            android:key="generalBoxSeekBar"
-            android:title="Box Sensitivity"
-            android:summary="Move slider Left to show boxes at confidence level meaning more often"
-            android:max="100"
-            android:defaultValue="10"
-            app:isPreferenceVisible="true" />
+            android:defaultValue="false"
+            android:key="check_box_preference_1"
+            android:title="Check box preference" />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Audio Monitoring">
 
-    <PreferenceCategory android:title="Animals Category Settings">
-        <SwitchPreference
-            android:key="generalSwitchTakePhoto"
-            android:summaryOff="Photos won't be taken automatically"
-            android:summaryOn="Photos will be taken based upon animal detection using machine learning"
-            android:title="Take Photos automatically"
-            app:isPreferenceVisible="true"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="glass_breaking"
+            android:title="Get Alerted for glass breaking"
+            android:summary="An email will be sent to the contacts listed above if there is glass breaking sound detected"/>
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="doorbell"
+            android:title="Get Alerted for doorbell"
+            android:summary="An email will be sent to the contacts listed above if there is doorbell sound detected"/>
 
-        <PreferenceCategory android:title="Bird">
-            <SwitchPreference
-                android:key="birdSwitchTakePhoto"
-                android:summaryOff="Photos of the birds won't be taken"
-                android:summaryOn="Photos of the birds will be taken upon detection"
-                android:title="Take Photos of the Birds"
-                app:dependency="generalSwitchTakePhoto"
-                app:isPreferenceVisible="true"/>
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:dependency="birdSwitchTakePhoto"
-                android:key="defaultBirdTakePhotoCheckBox"
-                android:title="Use Default Confidence Level"
-                android:summaryOn="Using Custom Confidence Level"
-                android:summaryOff="Using default Confidence Level at 60%"/>
-            <SeekBarPreference
-                android:defaultValue="10"
-                android:dependency="defaultBirdTakePhotoCheckBox"
-                android:key="birdSeekBar"
-                android:max="100"
-                android:summary="Move slider Left to take pictures at lower confidence level meaning more often"
-                android:title="Bird AutoCapture Confidence"
-                app:isPreferenceVisible="true" />
-        </PreferenceCategory>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="knock"
+            android:title="Get Alerted for door knocks"
+            android:summary="An email will be sent to the contacts listed above if the sound of a door knock is detected"/>
+    </PreferenceCategory>
 
+    <PreferenceCategory app:title="Video Monitoring">
 
-        <PreferenceCategory android:title="Squirrel">
-            <SwitchPreference
-                android:key="squirrelSwitchTakePhoto"
-                android:summaryOff="Photos of the squirrels won't be taken"
-                android:summaryOn="Photos of the squirrels will be taken upon detection"
-                android:title="Take Photos of the Squirrels"
-                app:dependency="generalSwitchTakePhoto"
-                app:isPreferenceVisible="true"/>
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:dependency="squirrelSwitchTakePhoto"
-                android:key="defaultSquirrelTakePhotoCheckBox"
-                android:title="Use Default Confidence Level"
-                android:summaryOn="Using Custom Confidence Level"
-                android:summaryOff="Using default Confidence Level at 60%"/>
-            <SeekBarPreference
-                android:defaultValue="10"
-                android:key="squirrelSeekBar"
-                android:max="100"
-                android:summary="Move slider Left to take pictures at lower confidence level meaning more often"
-                android:title="squirrel AutoCapture Confidence"
-                app:dependency="defaultSquirrelTakePhotoCheckBox"
-                app:isPreferenceVisible="true" />
-        </PreferenceCategory>
-
-
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="person_detection"
+            android:title="Get Alerted for person detection"
+            android:summary="An email will be sent to the contacts listed above if a person is detected in the frame"/>
     </PreferenceCategory>
 
 </PreferenceScreen>
