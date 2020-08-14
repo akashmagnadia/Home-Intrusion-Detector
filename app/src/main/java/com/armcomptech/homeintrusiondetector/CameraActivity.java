@@ -672,7 +672,9 @@ public abstract class CameraActivity extends AppCompatActivity
             if (isDebug()) {
               Toast.makeText(CameraActivity.this, "Detected person: " + result.getConfidence(), Toast.LENGTH_SHORT).show();
             } else {
-//            camera2Fragment.takePicture();
+              camera2Fragment.takePicture();
+              sendEmail("Home Intrusion Alert - person Detected",
+                      "Your phone may have saw a person. Your phone as taken a picture.");
             }
           }
         } else {
@@ -753,38 +755,14 @@ public abstract class CameraActivity extends AppCompatActivity
 
       case R.id.testEmail:
         if (getEmailAddresses().isEmpty()) {
-          final EditText edittext = new EditText(this);
-          AlertDialog.Builder alert = new AlertDialog.Builder(this);
-          alert.setTitle("Add Email Address");
-          alert.setMessage("Please enter a valid email address to send a test email to yourself. You can always add or remove emails in the settings.");
-
-          alert.setView(edittext);
-
-          alert.setPositiveButton("Add Email", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-              if (isValidEmail(String.valueOf(edittext.getText()))) {
-                addEmailAddress(String.valueOf(edittext.getText()));
-              } else {
-                Toast.makeText(CameraActivity.this, "Enter a valid email Address", Toast.LENGTH_LONG).show();
-              }
-            }
-          });
-
-          alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-              // what ever you want to do with No option.
-            }
-          });
-
-          alert.show();
+          askForValidEmailAddress();
         } else {
           sendEmail("Test Subject", "Test Body");
         }
         break;
 
       case R.id.instantOn:
-        Toast.makeText(CameraActivity.this, "Monitoring System in now activate", Toast.LENGTH_SHORT).show();
-        getSupportActionBar().setTitle("(Active) Home Intrusion Detector");
+        delayedMonitoringSystemOn(1);
         break;
 
       case R.id.delay30secondOn:
@@ -988,7 +966,8 @@ public abstract class CameraActivity extends AppCompatActivity
                           if (isDebug()) {
                             Toast.makeText(CameraActivity.this, "Detected glass_breaking: " + result.score, Toast.LENGTH_SHORT).show();
                           } else {
-
+                            sendEmail("Home Intrusion Alert - Glass Breaking Detected",
+                                    "Your phone may have heard a glass breaking.");
                           }
                         }
                         break;
@@ -998,7 +977,8 @@ public abstract class CameraActivity extends AppCompatActivity
                           if (isDebug()) {
                             Toast.makeText(CameraActivity.this, "Detected doorbell: " + result.score, Toast.LENGTH_SHORT).show();
                           } else {
-
+                            sendEmail("Home Intrusion Alert - Doorbell Detected",
+                                    "Your phone may have heard a doorbell.");
                           }
                         }
                         break;
@@ -1008,7 +988,8 @@ public abstract class CameraActivity extends AppCompatActivity
                           if (isDebug()) {
                             Toast.makeText(CameraActivity.this, "Detected knock: " + result.score, Toast.LENGTH_SHORT).show();
                           } else {
-
+                            sendEmail("Home Intrusion Alert - knock Detected",
+                                    "Your phone may have heard a knock of some kind such a door knock");
                           }
                         }
                         break;
@@ -1052,11 +1033,42 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   private void delayedMonitoringSystemOn(long seconds) {
-    Runnable monitoringActiveRunnable = () -> {
-      monitoringSystemActive = true;
-      getSupportActionBar().setTitle("(Active) Home Intrusion Detector"); //change the title to notify user
-      Toast.makeText(CameraActivity.this, "Monitoring System in now activate", Toast.LENGTH_SHORT).show();
-    };
-    monitoringSystemHandler.postDelayed(monitoringActiveRunnable, seconds * 1000);
+    if (getEmailAddresses().isEmpty()) {
+      askForValidEmailAddress();
+    } else {
+      Runnable monitoringActiveRunnable = () -> {
+        monitoringSystemActive = true;
+        getSupportActionBar().setTitle("(Active) Home Intrusion Detector"); //change the title to notify user
+        Toast.makeText(CameraActivity.this, "Monitoring System in now activate", Toast.LENGTH_SHORT).show();
+      };
+      monitoringSystemHandler.postDelayed(monitoringActiveRunnable, seconds * 1000);
+    }
+  }
+
+  private void askForValidEmailAddress() {
+    final EditText edittext = new EditText(this);
+    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+    alert.setTitle("Add Email Address");
+    alert.setMessage("Please enter a valid email address to send a email to yourself. You can always add or remove emails in the settings.");
+
+    alert.setView(edittext);
+
+    alert.setPositiveButton("Add Email", new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int whichButton) {
+        if (isValidEmail(String.valueOf(edittext.getText()))) {
+          addEmailAddress(String.valueOf(edittext.getText()));
+        } else {
+          Toast.makeText(CameraActivity.this, "Enter a valid email Address", Toast.LENGTH_LONG).show();
+        }
+      }
+    });
+
+    alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int whichButton) {
+        // what ever you want to do with No option.
+      }
+    });
+
+    alert.show();
   }
 }
