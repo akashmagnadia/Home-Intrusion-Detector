@@ -6,13 +6,20 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 public class GMail {
 
@@ -27,6 +34,7 @@ public class GMail {
     List<String> toEmailList;
     String emailSubject;
     String emailBody;
+    String fileName;
 
     Properties emailProperties;
     Session mailSession;
@@ -37,12 +45,13 @@ public class GMail {
     }
 
     public GMail(String fromEmail, String fromPassword,
-                 List<String> toEmailList, String emailSubject, String emailBody) {
+                 List<String> toEmailList, String emailSubject, String emailBody, String fileName) {
         this.fromEmail = fromEmail;
         this.fromPassword = fromPassword;
         this.toEmailList = toEmailList;
         this.emailSubject = emailSubject;
         this.emailBody = emailBody;
+        this.fileName = fileName;
 
         emailProperties = System.getProperties();
         emailProperties.put("mail.smtp.port", emailPort);
@@ -67,6 +76,16 @@ public class GMail {
         emailMessage.setSubject(emailSubject);
         emailMessage.setContent(emailBody, "text/html");// for a html email
         // emailMessage.setText(emailBody);// for a text email
+
+
+        Multipart fileMultipart = new MimeMultipart();
+        BodyPart fileBodyPart = new MimeBodyPart();
+        DataSource source = new FileDataSource(this.fileName);
+        fileBodyPart.setDataHandler(new DataHandler(source));
+        fileBodyPart.setFileName(this.fileName);
+        fileMultipart.addBodyPart(fileBodyPart);
+        emailMessage.setContent(fileMultipart);
+
         Log.i("GMail", "Email Message created.");
         return emailMessage;
     }

@@ -43,6 +43,7 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
@@ -81,6 +82,7 @@ import com.armcomptech.homeintrusiondetector.video.tflite.Classifier;
 import org.tensorflow.lite.Interpreter;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -799,7 +801,20 @@ public abstract class CameraActivity extends AppCompatActivity
     String fromEmail = getString(R.string.email);
     String fromPassword = getString(R.string.password);
 
-    new SendMailTask(this).execute(fromEmail, fromPassword, getEmailAddresses(), Subject, Body);
+    File toSendFile = null;
+    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Home Intrusion Detector");
+    File[] list = file.listFiles();
+    if (list != null) {
+      for (File f: list){
+        String name = f.getName();
+        if (name.endsWith(".jpg")) {
+          toSendFile = f;
+          break;
+        }
+      }
+    }
+
+    new SendMailTask(this).execute(fromEmail, fromPassword, getEmailAddresses(), Subject, Body, toSendFile);
   }
 
 
@@ -1069,6 +1084,9 @@ public abstract class CameraActivity extends AppCompatActivity
           addEmailAddress(String.valueOf(edittext.getText()));
           if (!testEmail) {
             delayedMonitoringSystemOnHelper(seconds);
+          } else {
+            //if asking email for test email
+            sendEmail("Test Subject", "Test Body");
           }
         } else {
           Toast.makeText(CameraActivity.this, "Enter a valid email Address", Toast.LENGTH_LONG).show();
@@ -1078,7 +1096,12 @@ public abstract class CameraActivity extends AppCompatActivity
 
     alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int whichButton) {
-        // what ever you want to do with No option.
+        if (testEmail) {
+          Toast.makeText(CameraActivity.this, "Email prompt canceled, therefore your test email will not be sent", Toast.LENGTH_LONG).show();
+        } else {
+          Toast.makeText(CameraActivity.this, "Email prompt canceled, therefore Monitoring system will not be activated", Toast.LENGTH_LONG).show();
+        }
+
       }
     });
 
