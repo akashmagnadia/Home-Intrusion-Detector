@@ -181,7 +181,7 @@ public class CameraConnectionFragment extends Fragment {
       @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
       mFile = new File(mediaStorageDir + File.separator +
-              "IMG_" + timeStamp + ".jpg");
+              "IMG_" + timeStamp + "notSent.jpg");
 
       OutputStream fOut = null;
       File file = mFile;

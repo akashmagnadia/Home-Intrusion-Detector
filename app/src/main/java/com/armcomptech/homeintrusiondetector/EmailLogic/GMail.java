@@ -2,6 +2,8 @@ package com.armcomptech.homeintrusiondetector.EmailLogic;
 
 import android.util.Log;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Properties;
@@ -34,7 +36,7 @@ public class GMail {
     List<String> toEmailList;
     String emailSubject;
     String emailBody;
-    String fileName;
+    List<File> fileNameList;
 
     Properties emailProperties;
     Session mailSession;
@@ -45,13 +47,14 @@ public class GMail {
     }
 
     public GMail(String fromEmail, String fromPassword,
-                 List<String> toEmailList, String emailSubject, String emailBody, String fileName) {
+                 List<String> toEmailList, String emailSubject,
+                 String emailBody, List<File> fileNameList) {
         this.fromEmail = fromEmail;
         this.fromPassword = fromPassword;
         this.toEmailList = toEmailList;
         this.emailSubject = emailSubject;
         this.emailBody = emailBody;
-        this.fileName = fileName;
+        this.fileNameList = fileNameList;
 
         emailProperties = System.getProperties();
         emailProperties.put("mail.smtp.port", emailPort);
@@ -61,7 +64,7 @@ public class GMail {
     }
 
     public MimeMessage createEmailMessage() throws AddressException,
-            MessagingException, UnsupportedEncodingException {
+            MessagingException, IOException {
 
         mailSession = Session.getDefaultInstance(emailProperties, null);
         emailMessage = new MimeMessage(mailSession);
@@ -77,14 +80,18 @@ public class GMail {
         emailMessage.setContent(emailBody, "text/html");// for a html email
         // emailMessage.setText(emailBody);// for a text email
 
+        if (!fileNameList.isEmpty()) {
+            Multipart fileMultipart = new MimeMultipart();
+            for (File fileName: fileNameList) {
+                MimeBodyPart attachPart = new MimeBodyPart();
+                attachPart.attachFile(fileName);
+                fileMultipart.addBodyPart(attachPart);
+            }
 
-        Multipart fileMultipart = new MimeMultipart();
-        BodyPart fileBodyPart = new MimeBodyPart();
-        DataSource source = new FileDataSource(this.fileName);
-        fileBodyPart.setDataHandler(new DataHandler(source));
-        fileBodyPart.setFileName(this.fileName);
-        fileMultipart.addBodyPart(fileBodyPart);
-        emailMessage.setContent(fileMultipart);
+            emailMessage.setContent(fileMultipart);
+        }
+
+
 
         Log.i("GMail", "Email Message created.");
         return emailMessage;

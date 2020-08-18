@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical" >
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="How To Use"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:textSize="15dp"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Go to settings and enable the types of alerts you would like to recieve. Then add an email address(es) where you would like to recieve alerts"
+            android:textAlignment="textStart"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Be sure give all the permissions are given in order for the app to perform as intended"
+            android:textAlignment="textStart"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="When ready to enable monitoring mode, connect the charger to ensure the monitoring is uninterrupted."
+            android:textAlignment="textStart"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Turn the device in any orientation that you want to set it in and then if the screen is black then go to settings and come back which should fix the issue."
+            android:textAlignment="textStart"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="TYou can activate monitoring mode in delay timer or instantly. Whatever the status is, it will be stated next to app name."
+            android:textAlignment="textStart"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Note To The User"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:textSize="15dp"
+            android:layout_marginTop="15dp"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textStyle="italic"
+            android:text="All media captured from this app will be deleted after 15 days by default"
+            android:textAlignment="textStart"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textStyle="italic"
+            android:text="The cooldown between emails can be sent out is 30 seconds by default."
+            android:textAlignment="textStart"
+            android:textColor="@color/black"/>
+
+    </LinearLayout>
+</LinearLayout>

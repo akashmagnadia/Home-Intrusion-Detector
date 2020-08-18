@@ -5,18 +5,6 @@
     >
 
     <item
-        android:id="@+id/settings"
-        android:title="@string/setting"
-        app:showAsAction="never"
-        android:visible="false"/>
-
-    <item
-        android:id="@+id/testEmail"
-        android:title="@string/send_test_email"
-        app:showAsAction="never"
-        android:visible="false"/>
-
-    <item
         android:id="@+id/activate"
         android:title="Activate"
         app:showAsAction="never"
@@ -49,5 +37,29 @@
         </menu>
 
     </item>
+
+    <item
+        android:id="@+id/settings"
+        android:title="@string/setting"
+        app:showAsAction="never"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/testEmail"
+        android:title="@string/send_test_email"
+        app:showAsAction="never"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/aboutThisApp"
+        android:title="How To Use"
+        app:showAsAction="never"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/privacy_policy"
+        android:title="@string/privacy_policy"
+        app:showAsAction="never"
+        android:visible="false" />
 
 </menu>

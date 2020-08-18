@@ -99,6 +99,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
 
   private final TextureView.SurfaceTextureListener surfaceTextureListener =
       new TextureView.SurfaceTextureListener() {
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
         public void onSurfaceTextureAvailable(
                 final SurfaceTexture texture, final int width, final int height) {
@@ -263,6 +264,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
     for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
       Camera.getCameraInfo(i, ci);
       if (ci.facing == CameraInfo.CAMERA_FACING_BACK) return i;
+      if (ci.facing == CameraInfo.CAMERA_FACING_FRONT) return i;
     }
     return -1; // No camera found
   }
@@ -286,7 +288,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
     @SuppressLint("SimpleDateFormat") String timeStamp  = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
     File pictureFile = new File(mediaStorageDir + File.separator +
-            "IMG_"+ timeStamp + ".jpg");
+            "IMG_"+ timeStamp + "notSent.jpg");
 
     try {
       FileOutputStream fos = new FileOutputStream(pictureFile);

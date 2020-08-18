@@ -254,11 +254,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   }
 
   @Override
-  protected void setUseNNAPI(final boolean isChecked) {
-    runInBackground(() -> detector.setUseNNAPI(isChecked));
-  }
-
-  @Override
   protected void setNumThreads(final int numThreads) {
     runInBackground(() -> detector.setNumThreads(numThreads));
   }

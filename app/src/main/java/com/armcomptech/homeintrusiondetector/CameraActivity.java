@@ -18,6 +18,7 @@ package com.armcomptech.homeintrusiondetector;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,6 +42,7 @@ import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -55,10 +57,14 @@ import android.util.Log;
 import android.util.Patterns;
 import android.util.Size;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -176,9 +182,14 @@ public abstract class CameraActivity extends AppCompatActivity
   private Handler monitoringSystemHandler = new Handler();
   private Boolean monitoringSystemActive = false;
 
+  private Handler emailTimeoutCoolDownHandler = new Handler();
+  private Boolean emailTimeoutCoolingDown = false;
+
+  private Button cancelHowToUseDialog;
+
   //TODO: Turn off when releasing official software
   public boolean isDebug() {
-    return true;
+    return false;
   }
 
   /** Memory-map the model file in Assets. */
@@ -232,9 +243,6 @@ public abstract class CameraActivity extends AppCompatActivity
     setNumThreads(numThreads);
 
     frameLayout = findViewById(R.id.container);
-
-
-
 
     emailAddresses = new ArrayList<>();
 
@@ -564,6 +572,7 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   // Returns true if the device supports the required hardware level, or better.
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   private boolean isHardwareLevelSupported(
           CameraCharacteristics characteristics) {
     @SuppressWarnings("ConstantConditions") int deviceLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
@@ -664,17 +673,18 @@ public abstract class CameraActivity extends AppCompatActivity
 
         // if green light for squirrel and confidence level is surpassed
         if (camera2Fragment != null) {
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (isDebug()) {
-              Toast.makeText(CameraActivity.this, "Detected person: " + result.getConfidence(), Toast.LENGTH_SHORT).show();
-            } else {
-              if (greenLightToTakePhoto) {
+          if (isDebug()) {
+            Toast.makeText(CameraActivity.this, "Detected person: " + result.getConfidence(), Toast.LENGTH_SHORT).show();
+          } else {
+            if (greenLightToTakePhoto) {
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 camera2Fragment.takePicture();
               }
-
-              sendEmail("Home Intrusion Alert - person Detected",
-                      "Your phone may have saw a person. Your phone as taken a picture.");
             }
+
+            sendEmail("Home Intrusion Alert - person Detected",
+                    "Your phone may have saw a person. Your phone as taken a picture.",
+                    false);
           }
         } else {
           if (isDebug()) {
@@ -684,7 +694,8 @@ public abstract class CameraActivity extends AppCompatActivity
               ((LegacyCameraConnectionFragment) fragment).takePicture();
             }
               sendEmail("Home Intrusion Alert - person Detected",
-                    "Your phone may have saw a person. Your phone as taken a picture.");
+                    "Your phone may have saw a person. Your phone as taken a picture.",
+                      false);
           }
         }
       }
@@ -722,7 +733,6 @@ public abstract class CameraActivity extends AppCompatActivity
   protected abstract Size getDesiredPreviewFrameSize();
 
   protected abstract void setNumThreads(int numThreads);
-  protected abstract void setUseNNAPI(boolean isChecked);
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -731,6 +741,9 @@ public abstract class CameraActivity extends AppCompatActivity
 
     menu.add(0, R.id.settings, 0, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_settings_24_black), "Settings"));
     menu.add(0, R.id.testEmail, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_email_24_black), "Send Test Email"));
+    menu.add(0, R.id.aboutThisApp, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_help_24_black), "How To Use"));
+    menu.add(0, R.id.privacy_policy, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_lock_24_black), "Privacy Policy"));
+
 
     return true;
   }
@@ -756,6 +769,13 @@ public abstract class CameraActivity extends AppCompatActivity
     }
 
     switch (id) {
+      case R.id.aboutThisApp:
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.how_to_use_view);
+        dialog.show();
+
+        break;
+
       case R.id.settings:
         startActivity(new Intent(this, SettingsActivity.class));
         break;
@@ -764,8 +784,15 @@ public abstract class CameraActivity extends AppCompatActivity
         if (getEmailAddresses().isEmpty()) {
           askForValidEmailAddress(true, 0);
         } else {
-          sendEmail("Test Subject", "Test Body");
+          sendEmail("Test Subject", "Test Body", true);
         }
+        break;
+
+      case R.id.privacy_policy:
+        String link = "https://smartanimaldetector.blogspot.com/2020/08/home-intrusion-detector-privacy-policy.html";
+        Intent myWebLink = new Intent(android.content.Intent.ACTION_VIEW);
+        myWebLink.setData(Uri.parse(link));
+        startActivity(myWebLink);
         break;
 
       case R.id.instantOn:
@@ -797,26 +824,64 @@ public abstract class CameraActivity extends AppCompatActivity
     return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
   }
 
-  private void sendEmail(String Subject, String Body) {
+  private void sendEmail(String Subject, String Body, Boolean testEmail) {
     String fromEmail = getString(R.string.email);
     String fromPassword = getString(R.string.password);
 
-    File toSendFile = null;
-    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Home Intrusion Detector");
-    File[] list = file.listFiles();
-    if (list != null) {
-      for (File f: list){
-        String name = f.getName();
-        if (name.endsWith(".jpg")) {
-          toSendFile = f;
-          break;
-        }
+    if (testEmail) {
+      //if test email then send now
+      List<File> toSendFileNameList = getFileNameListToSend();
+      new SendMailTask(this).execute(fromEmail, fromPassword, getEmailAddresses(), Subject, Body, toSendFileNameList);
+    } else {
+      //if not test email than it is subject to a cooldown
+      if (!emailTimeoutCoolingDown) {
+        List<File> toSendFileNameList = getFileNameListToSend();
+        new SendMailTask(this).execute(fromEmail, fromPassword, getEmailAddresses(), Subject, Body, toSendFileNameList);
+
+        emailTimeoutCoolingDown = true;
+        activateEmailTimeoutCooldown(15);
       }
     }
 
-    new SendMailTask(this).execute(fromEmail, fromPassword, getEmailAddresses(), Subject, Body, toSendFile);
+
   }
 
+  private List<File> getFileNameListToSend() {
+    List<File> toSendFileNameList = new ArrayList<>();
+    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Home Intrusion Detector");
+    File[] list = file.listFiles();
+    if (list != null) {
+      int numFilesToSend = 0;
+      for (File f: list){
+
+        autoDeletion(f, 15);
+        //all files older than 15 days are automatically deleted
+
+        if (numFilesToSend > 10) {
+          break; //only 10 maximum photos can be sent in an email
+        }
+
+        String name = f.getName();
+        if (name.endsWith("notSent.jpg")) {
+          File renamedFile = new File(String.valueOf(f).replace("notSent", ""));
+          toSendFileNameList.add(renamedFile);
+          f.renameTo(renamedFile);
+        }
+        numFilesToSend++;
+      }
+    }
+
+    return toSendFileNameList;
+  }
+
+  private void autoDeletion(File f, int days) {
+    long diff = new Date().getTime() - f.lastModified();
+
+    if (diff > days * 24 * 60 * 60 * 1000) {
+      f.delete();
+    }
+    //all files older than x days are automatically deleted
+  }
 
   private void requestMicrophonePermission() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -987,7 +1052,8 @@ public abstract class CameraActivity extends AppCompatActivity
                             Toast.makeText(CameraActivity.this, "Detected glass_breaking: " + result.score, Toast.LENGTH_SHORT).show();
                           } else {
                             sendEmail("Home Intrusion Alert - Glass Breaking Detected",
-                                    "Your phone may have heard a glass breaking.");
+                                    "Your phone may have heard a glass breaking.",
+                                    false);
                           }
                         }
                         break;
@@ -998,7 +1064,8 @@ public abstract class CameraActivity extends AppCompatActivity
                             Toast.makeText(CameraActivity.this, "Detected doorbell: " + result.score, Toast.LENGTH_SHORT).show();
                           } else {
                             sendEmail("Home Intrusion Alert - Doorbell Detected",
-                                    "Your phone may have heard a doorbell.");
+                                    "Your phone may have heard a doorbell.",
+                                    false);
                           }
                         }
                         break;
@@ -1009,7 +1076,8 @@ public abstract class CameraActivity extends AppCompatActivity
                             Toast.makeText(CameraActivity.this, "Detected knock: " + result.score, Toast.LENGTH_SHORT).show();
                           } else {
                             sendEmail("Home Intrusion Alert - knock Detected",
-                                    "Your phone may have heard a knock of some kind such a door knock");
+                                    "Your phone may have heard a knock of some kind such a door knock",
+                                    false);
                           }
                         }
                         break;
@@ -1052,6 +1120,14 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
+  private void activateEmailTimeoutCooldown(long seconds) {
+    Runnable emailTimeoutCooldownRunnable = () -> {
+      emailTimeoutCoolingDown = false;
+      // after x seconds this will set to true so that email can be sent again
+    };
+    emailTimeoutCoolDownHandler.postDelayed(emailTimeoutCooldownRunnable, seconds * 1000);
+  }
+
   private void delayedMonitoringSystemOn(long seconds) {
     //TODO: if system is active tell user
     if (getEmailAddresses().isEmpty()) {
@@ -1086,7 +1162,7 @@ public abstract class CameraActivity extends AppCompatActivity
             delayedMonitoringSystemOnHelper(seconds);
           } else {
             //if asking email for test email
-            sendEmail("Test Subject", "Test Body");
+            sendEmail("Test Subject", "Test Body", testEmail);
           }
         } else {
           Toast.makeText(CameraActivity.this, "Enter a valid email Address", Toast.LENGTH_LONG).show();
