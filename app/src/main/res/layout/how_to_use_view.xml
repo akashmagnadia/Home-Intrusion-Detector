@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Go to settings and enable the types of alerts you would like to recieve. Then add an email address(es) where you would like to recieve alerts"
+            android:text="Go to settings and enable the types of alerts you would like to receive. Then add an email address(es) where you would like to receive alerts."
             android:textAlignment="textStart"
             android:textColor="@color/black"/>
 
@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Be sure give all the permissions are given in order for the app to perform as intended"
+            android:text="Be sure give all the permissions are given in order for the app to perform as intended."
             android:textAlignment="textStart"
             android:textColor="@color/black"/>
 
@@ -74,7 +74,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:textStyle="italic"
-            android:text="All media captured from this app will be deleted after 15 days by default"
+            android:text="All media captured from this app will be deleted after 15 days by default."
             android:textAlignment="textStart"
             android:textColor="@color/black"/>
 
@@ -84,6 +84,15 @@
             android:layout_marginTop="10dp"
             android:textStyle="italic"
             android:text="The cooldown between emails can be sent out is 30 seconds by default."
+            android:textAlignment="textStart"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textStyle="italic"
+            android:text="The email can have at maximum 10 attachments in each email by default."
             android:textAlignment="textStart"
             android:textColor="@color/black"/>
 
