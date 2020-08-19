@@ -178,6 +178,9 @@ public abstract class CameraActivity extends AppCompatActivity
   private Boolean doorbellCheckBox;
   private Boolean knockCheckBox;
   private Boolean personDetectionCheckBox;
+  private int emailTimeoutSeconds;
+  private int maxAttachments;
+  private int autoDeletionDays;
 
   private Handler monitoringSystemHandler = new Handler();
   private Boolean monitoringSystemActive = false;
@@ -310,6 +313,9 @@ public abstract class CameraActivity extends AppCompatActivity
     doorbellCheckBox = sharedPreferences.getBoolean("doorbell", true);
     knockCheckBox = sharedPreferences.getBoolean("knock", true);
     personDetectionCheckBox = sharedPreferences.getBoolean("person_detection", true);
+    emailTimeoutSeconds = Integer.parseInt(sharedPreferences.getString("email_timeout", "30"));
+    maxAttachments = Integer.parseInt(sharedPreferences.getString("attachment_max_value", "10"));
+    autoDeletionDays = Integer.parseInt(sharedPreferences.getString("auto_deletion", "15"));
 
     RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 
@@ -839,7 +845,7 @@ public abstract class CameraActivity extends AppCompatActivity
         new SendMailTask(this).execute(fromEmail, fromPassword, getEmailAddresses(), Subject, Body, toSendFileNameList);
 
         emailTimeoutCoolingDown = true;
-        activateEmailTimeoutCooldown(15);
+        activateEmailTimeoutCooldown(emailTimeoutSeconds); //default is 30
       }
     }
 
@@ -854,11 +860,11 @@ public abstract class CameraActivity extends AppCompatActivity
       int numFilesToSend = 0;
       for (File f: list){
 
-        autoDeletion(f, 15);
-        //all files older than 15 days are automatically deleted
+        autoDeletion(f, autoDeletionDays);
+        //all files older than 15 days are automatically deleted by default
 
-        if (numFilesToSend > 10) {
-          break; //only 10 maximum photos can be sent in an email
+        if (numFilesToSend >= maxAttachments) {
+          break; //only 10 maximum photos can be sent in an email by default
         }
 
         String name = f.getName();

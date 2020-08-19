@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="email_timeout_entries">
+        <item>30 seconds (default)</item>
+        <item>45 seconds</item>
+        <item>1 minute</item>
+        <item>1 minute and 30 seconds</item>
+        <item>2 minutes</item>
+    </string-array>
+
+    <string-array name="email_timeout_values">
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+        <item>90</item>
+        <item>180</item>
+    </string-array>
+
+
+    <string-array name="max_attachments_entries">
+        <item>1 attachments</item>
+        <item>5 attachments</item>
+        <item>10 attachments (default)</item>
+        <item>15 attachments</item>
+        <item>20 attachments</item>
+    </string-array>
+
+    <string-array name="max_attachments_values">
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+    </string-array>
+
+
+    <string-array name="auto_deletion_entries">
+        <item>1 day</item>
+        <item>5 days</item>
+        <item>15 days (default)</item>
+        <item>30 days</item>
+        <item>2 months</item>
+    </string-array>
+
+    <string-array name="auto_deletion_values">
+        <item>1</item>
+        <item>5</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+</resources>

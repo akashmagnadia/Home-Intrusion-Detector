@@ -8,6 +8,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.EditTextPreference;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
@@ -130,6 +131,44 @@ public class SettingsActivity extends AppCompatActivity {
 
             videoMonitoringCategory.addPreference(personDetectionCheckBoxPreference);
             screen.addPreference(videoMonitoringCategory);
+
+
+            final PreferenceCategory emailCategory = new PreferenceCategory(requireContext());
+            emailCategory.setTitle("Email Settings");
+            screen.addPreference(emailCategory);
+
+            ListPreference emailTimeoutListPreference = new ListPreference(requireContext());
+            emailTimeoutListPreference.setDefaultValue(30);
+            emailTimeoutListPreference.setEntries(getResources().getStringArray(R.array.email_timeout_entries));
+            emailTimeoutListPreference.setEntryValues(getResources().getStringArray(R.array.email_timeout_values));
+            emailTimeoutListPreference.setKey("email_timeout");
+            emailTimeoutListPreference.setTitle("Email Timeout Time");
+            emailTimeoutListPreference.setSummary("If the timeout is 30 seconds then there will be at most one email sent to your phone withing 30 seconds");
+
+            emailCategory.addPreference(emailTimeoutListPreference);
+
+            ListPreference maxAttachmentsListPreference = new ListPreference(requireContext());
+            maxAttachmentsListPreference.setDefaultValue(10);
+            maxAttachmentsListPreference.setEntries(getResources().getStringArray(R.array.max_attachments_entries));
+            maxAttachmentsListPreference.setEntryValues(getResources().getStringArray(R.array.max_attachments_values));
+            maxAttachmentsListPreference.setKey("attachment_max_value");
+            maxAttachmentsListPreference.setTitle("Maximum attachments");
+            maxAttachmentsListPreference.setSummary("Maximum attachments you would like to receive when your receive email alerts. For example, only 10 pictures");
+
+            emailCategory.addPreference(maxAttachmentsListPreference);
+            screen.addPreference(emailCategory);
+
+
+            ListPreference autoDeletionListPreference = new ListPreference(requireContext());
+            autoDeletionListPreference.setDefaultValue(15);
+            autoDeletionListPreference.setEntries(getResources().getStringArray(R.array.auto_deletion_entries));
+            autoDeletionListPreference.setEntryValues(getResources().getStringArray(R.array.auto_deletion_values));
+            autoDeletionListPreference.setKey("auto_deletion");
+            autoDeletionListPreference.setTitle("Automatically Delete");
+            autoDeletionListPreference.setSummary("Automatically delete files such as recorded media from this app. Default is 15 days");
+
+            screen.addPreference(autoDeletionListPreference);
+
 
             setPreferenceScreen(screen);
 

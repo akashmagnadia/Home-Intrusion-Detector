@@ -47,4 +47,32 @@
             android:summary="An email will be sent to the contacts listed above if a person is detected in the frame"/>
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Email Settings">
+
+        <ListPreference
+            android:defaultValue="30"
+            android:entries="@array/email_timeout_entries"
+            android:entryValues="@array/email_timeout_values"
+            android:key="email_timeout"
+            android:title="Email Timeout time"
+            android:summary="If the timeout is 30 seconds then there will be at most one email sent to your phone withing 30 seconds"/>
+
+        <ListPreference
+            android:defaultValue="10"
+            android:entries="@array/max_attachments_entries"
+            android:entryValues="@array/max_attachments_values"
+            android:key="attachment_max_value"
+            android:title="Maximum attachments"
+            android:summary="Maximum attachments you would like to receive when your receive email alerts. For example, only 10 pictures"/>
+
+    </PreferenceCategory>
+
+    <ListPreference
+        android:defaultValue="15"
+        android:entries="@array/auto_deletion_entries"
+        android:entryValues="@array/auto_deletion_values"
+        android:key="auto_deletion"
+        android:title="Automatically Delete"
+        android:summary="Automatically delete files such as recorded media from this app. Default is 15 days."/>
+
 </PreferenceScreen>
