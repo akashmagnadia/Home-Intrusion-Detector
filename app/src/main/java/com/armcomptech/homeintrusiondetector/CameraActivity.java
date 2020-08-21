@@ -1202,6 +1202,9 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   private void askForValidEmailAddress(Boolean testEmail, long seconds) {
+
+    logFirebaseAnalyticsEvents("Asked For Email Address");
+
     final EditText edittext = new EditText(this);
     AlertDialog.Builder alert = new AlertDialog.Builder(this);
     alert.setTitle("Add Email Address");
