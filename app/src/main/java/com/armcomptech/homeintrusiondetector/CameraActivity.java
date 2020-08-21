@@ -84,6 +84,7 @@ import com.armcomptech.homeintrusiondetector.video.LegacyCameraConnectionFragmen
 import com.armcomptech.homeintrusiondetector.video.env.ImageUtils;
 import com.armcomptech.homeintrusiondetector.video.env.Logger;
 import com.armcomptech.homeintrusiondetector.video.tflite.Classifier;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.tensorflow.lite.Interpreter;
 
@@ -187,6 +188,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
   private Handler emailTimeoutCoolDownHandler = new Handler();
   private Boolean emailTimeoutCoolingDown = false;
+  private static FirebaseAnalytics mFirebaseAnalytics;
 
   private Button cancelHowToUseDialog;
 
@@ -228,6 +230,11 @@ public abstract class CameraActivity extends AppCompatActivity
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
+
+    mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+    Bundle bundle = new Bundle();
+    bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App Opened");
+    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, bundle);
 
     setContentView(R.layout.activity_camera);
     Toolbar toolbar = findViewById(R.id.toolbar);
@@ -294,16 +301,31 @@ public abstract class CameraActivity extends AppCompatActivity
     startRecognition();
   }
 
+  public static void logFirebaseAnalyticsEvents(String eventName) {
+    Bundle bundle = new Bundle();
+    bundle.putString("Event", eventName);
+    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+  }
+
+  public static void logFirebaseAnalyticsEventsForEmails(String eventName, String Topic) {
+    Bundle bundle = new Bundle();
+    bundle.putString("Event", eventName);
+    bundle.putString("Topic", Topic);
+    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+  }
+
   public static List<String> getEmailAddresses() {
     return emailAddresses;
   }
 
   public static void addEmailAddress(String emailAddress) {
     emailAddresses.add(emailAddress);
+    logFirebaseAnalyticsEvents("Added Email Address");
   }
 
   public static void removeEmailAddress(String emailAddress) {
     emailAddresses.remove(emailAddress);
+    logFirebaseAnalyticsEvents("Removed Email Address");
   }
 
   public void checkForSettings() {
@@ -685,12 +707,15 @@ public abstract class CameraActivity extends AppCompatActivity
             if (greenLightToTakePhoto) {
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 camera2Fragment.takePicture();
+
+                logFirebaseAnalyticsEvents("Took a picture");
               }
             }
 
             sendEmail("Home Intrusion Alert - person Detected",
                     "Your phone may have saw a person. Your phone as taken a picture.",
                     false);
+            logFirebaseAnalyticsEventsForEmails("Send Email", "Person Detected");
           }
         } else {
           if (isDebug()) {
@@ -698,10 +723,13 @@ public abstract class CameraActivity extends AppCompatActivity
           } else {
             if (greenLightToTakePhoto) {
               ((LegacyCameraConnectionFragment) fragment).takePicture();
+              logFirebaseAnalyticsEvents("Took a picture");
             }
-              sendEmail("Home Intrusion Alert - person Detected",
+
+            sendEmail("Home Intrusion Alert - person Detected",
                     "Your phone may have saw a person. Your phone as taken a picture.",
                       false);
+            logFirebaseAnalyticsEventsForEmails("Send Email", "Person Detected");
           }
         }
       }
@@ -780,10 +808,14 @@ public abstract class CameraActivity extends AppCompatActivity
         dialog.setContentView(R.layout.how_to_use_view);
         dialog.show();
 
+        logFirebaseAnalyticsEvents("Read about this app");
+
         break;
 
       case R.id.settings:
         startActivity(new Intent(this, SettingsActivity.class));
+
+        logFirebaseAnalyticsEvents("Settings");
         break;
 
       case R.id.testEmail:
@@ -792,6 +824,7 @@ public abstract class CameraActivity extends AppCompatActivity
         } else {
           sendEmail("Test Subject", "Test Body", true);
         }
+
         break;
 
       case R.id.privacy_policy:
@@ -799,10 +832,13 @@ public abstract class CameraActivity extends AppCompatActivity
         Intent myWebLink = new Intent(android.content.Intent.ACTION_VIEW);
         myWebLink.setData(Uri.parse(link));
         startActivity(myWebLink);
+
+        logFirebaseAnalyticsEvents("Privacy Policy");
         break;
 
       case R.id.instantOn:
         delayedMonitoringSystemOn(1);
+
         break;
 
       case R.id.delay30secondOn:
@@ -838,6 +874,8 @@ public abstract class CameraActivity extends AppCompatActivity
       //if test email then send now
       List<File> toSendFileNameList = getFileNameListToSend();
       new SendMailTask(this).execute(fromEmail, fromPassword, getEmailAddresses(), Subject, Body, toSendFileNameList);
+
+      logFirebaseAnalyticsEventsForEmails("Send Email", "Test Email");
     } else {
       //if not test email than it is subject to a cooldown
       if (!emailTimeoutCoolingDown) {
@@ -848,8 +886,6 @@ public abstract class CameraActivity extends AppCompatActivity
         activateEmailTimeoutCooldown(emailTimeoutSeconds); //default is 30
       }
     }
-
-
   }
 
   private List<File> getFileNameListToSend() {
@@ -1060,6 +1096,8 @@ public abstract class CameraActivity extends AppCompatActivity
                             sendEmail("Home Intrusion Alert - Glass Breaking Detected",
                                     "Your phone may have heard a glass breaking.",
                                     false);
+
+                            logFirebaseAnalyticsEventsForEmails("Send Email", "Glass Breaking Detected");
                           }
                         }
                         break;
@@ -1072,6 +1110,8 @@ public abstract class CameraActivity extends AppCompatActivity
                             sendEmail("Home Intrusion Alert - Doorbell Detected",
                                     "Your phone may have heard a doorbell.",
                                     false);
+
+                            logFirebaseAnalyticsEventsForEmails("Send Email", "Doorbell Detected");
                           }
                         }
                         break;
@@ -1084,6 +1124,8 @@ public abstract class CameraActivity extends AppCompatActivity
                             sendEmail("Home Intrusion Alert - knock Detected",
                                     "Your phone may have heard a knock of some kind such a door knock",
                                     false);
+
+                            logFirebaseAnalyticsEventsForEmails("Send Email", "Knock Detected");
                           }
                         }
                         break;
@@ -1139,7 +1181,7 @@ public abstract class CameraActivity extends AppCompatActivity
     if (getEmailAddresses().isEmpty()) {
       askForValidEmailAddress(false, seconds);
     } else {
-      delayedMonitoringSystemOn(seconds);
+      delayedMonitoringSystemOnHelper(seconds);
     }
   }
 
@@ -1148,6 +1190,13 @@ public abstract class CameraActivity extends AppCompatActivity
       monitoringSystemActive = true;
       getSupportActionBar().setTitle("(Active) Home Intrusion Detector"); //change the title to notify user
       Toast.makeText(CameraActivity.this, "Monitoring System in now activate", Toast.LENGTH_SHORT).show();
+
+      //log events in firebase
+      Bundle bundle = new Bundle();
+      bundle.putString("Event", "Monitoring Active");
+      bundle.putString("Delay_Timer", String.valueOf(seconds));
+      mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+      logFirebaseAnalyticsEvents("Monitoring Active");
     };
     monitoringSystemHandler.postDelayed(monitoringActiveRunnable, seconds * 1000);
   }
