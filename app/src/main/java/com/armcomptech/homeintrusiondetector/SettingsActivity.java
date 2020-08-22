@@ -1,6 +1,8 @@
 package com.armcomptech.homeintrusiondetector;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -13,6 +15,9 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
+import androidx.preference.SwitchPreference;
+
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import static com.armcomptech.homeintrusiondetector.CameraActivity.isValidEmail;
 
@@ -46,6 +51,9 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
+
+        Handler cameraSwitchHandler = new Handler();
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
 
@@ -172,11 +180,34 @@ public class SettingsActivity extends AppCompatActivity {
             autoDeletionListPreference.setSummary("Automatically delete files such as recorded media from this app. Default is 15 days");
 
             otherCategory.addPreference(autoDeletionListPreference);
+
+
+            SwitchPreference cameraSwitchPreference = new SwitchPreference(requireContext());
+            cameraSwitchPreference.setTitle("Camera Preference (App will restart once selected)");
+            cameraSwitchPreference.setSummaryOn("Right now, Using Back Camera for monitoring");
+            cameraSwitchPreference.setSummaryOff("Right now, Using Front Camera for monitoring");
+            cameraSwitchPreference.setDefaultValue(true);
+            cameraSwitchPreference.setKey("camera_preference");
+            cameraSwitchPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                cameraSwitchWait(500);
+                return true;
+            });
+
+            otherCategory.addPreference(cameraSwitchPreference);
             screen.addPreference(otherCategory);
 
             setPreferenceScreen(screen);
 
 //            setPreferencesFromResource(R.xml.root_preferences, rootKey);
         }
+
+        public void cameraSwitchWait(long milliseconds) {
+            Runnable lockOrientationRunnable = () -> {
+                ProcessPhoenix.triggerRebirth(CameraActivity.getContext());
+            };
+            cameraSwitchHandler.postDelayed(lockOrientationRunnable, milliseconds);
+        }
     }
+
+
 }

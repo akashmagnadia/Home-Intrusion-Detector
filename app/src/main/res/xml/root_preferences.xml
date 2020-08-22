@@ -67,12 +67,25 @@
 
     </PreferenceCategory>
 
-    <ListPreference
-        android:defaultValue="15"
-        android:entries="@array/auto_deletion_entries"
-        android:entryValues="@array/auto_deletion_values"
-        android:key="auto_deletion"
-        android:title="Automatically Delete"
-        android:summary="Automatically delete files such as recorded media from this app. Default is 15 days."/>
+    <PreferenceCategory app:title="Other">
+
+        <ListPreference
+            android:defaultValue="15"
+            android:entries="@array/auto_deletion_entries"
+            android:entryValues="@array/auto_deletion_values"
+            android:key="auto_deletion"
+            android:title="Automatically Delete"
+            android:summary="Automatically delete files such as recorded media from this app. Default is 15 days."/>
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="camera_preference"
+            android:title="Camera Preference"
+            android:summaryOn="Using Back Camera for monitoring"
+            android:summaryOff="Using On Camera for monitoring"/>
+
+    </PreferenceCategory>
+
+
 
 </PreferenceScreen>

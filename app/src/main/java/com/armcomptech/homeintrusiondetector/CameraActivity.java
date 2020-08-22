@@ -490,6 +490,8 @@ public abstract class CameraActivity extends AppCompatActivity
     VideoHandler = new Handler(VideoHandlerThread.getLooper());
 
     startBackgroundThread();
+    startRecognition();
+    startRecording();
   }
 
   @Override
@@ -517,6 +519,8 @@ public abstract class CameraActivity extends AppCompatActivity
     super.onStop();
 
     stopBackgroundThread();
+    stopRecognition();
+    stopRecording();
   }
 
   @Override
@@ -525,7 +529,8 @@ public abstract class CameraActivity extends AppCompatActivity
     super.onDestroy();
 
     stopBackgroundThread();
-//    android.os.Process.killProcess(android.os.Process.myPid());
+    stopRecognition();
+    stopRecording();
   }
 
   protected synchronized void runInBackground(final Runnable r) {
@@ -610,6 +615,9 @@ public abstract class CameraActivity extends AppCompatActivity
 
   @RequiresApi(api = Build.VERSION_CODES.M)
   private String chooseCamera() {
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(CameraActivity.getContext());
+    Boolean wantBackFacingCamera = sharedPreferences.getBoolean("camera_preference", true);
+
     final CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
     try {
       assert manager != null;
@@ -618,9 +626,9 @@ public abstract class CameraActivity extends AppCompatActivity
 
         // We don't use a front facing camera in this sample.
         final Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
-        if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
-          continue;
-        }
+//        if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
+//          continue;
+//        }
 
         final StreamConfigurationMap map =
                 characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
@@ -638,8 +646,21 @@ public abstract class CameraActivity extends AppCompatActivity
                         || isHardwareLevelSupported(
                         characteristics);
         LOGGER.i("Camera API lv2?: %s", useCamera2API);
-        return cameraId;
+
+        if (wantBackFacingCamera &&
+                ((facing == CameraCharacteristics.LENS_FACING_BACK) || (facing == CameraCharacteristics.LENS_FACING_EXTERNAL))) {
+          return cameraId;
+        }
+
+        if (!wantBackFacingCamera &&
+                (facing == CameraCharacteristics.LENS_FACING_FRONT)) {
+          return cameraId;
+        }
+
+
+//        return cameraId;
       }
+      return "-1";
     } catch (CameraAccessException e) {
       LOGGER.e(e, "Not allowed to access camera");
     }

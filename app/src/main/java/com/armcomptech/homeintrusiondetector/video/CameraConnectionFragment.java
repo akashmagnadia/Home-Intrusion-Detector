@@ -72,6 +72,7 @@ import com.armcomptech.homeintrusiondetector.R;
 import com.armcomptech.homeintrusiondetector.SettingsActivity;
 import com.armcomptech.homeintrusiondetector.video.customview.AutoFitTextureView;
 import com.armcomptech.homeintrusiondetector.video.env.Logger;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -738,6 +739,7 @@ public class CameraConnectionFragment extends Fragment {
               },
               null);
     } catch (final CameraAccessException e) {
+      ProcessPhoenix.triggerRebirth(CameraActivity.getContext());
       LOGGER.e(e, "Exception!");
     }
   }

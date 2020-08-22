@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -39,7 +40,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.RequiresApi;
+import androidx.preference.PreferenceManager;
 
+import com.armcomptech.homeintrusiondetector.CameraActivity;
 import com.armcomptech.homeintrusiondetector.R;
 import com.armcomptech.homeintrusiondetector.video.customview.AutoFitTextureView;
 import com.armcomptech.homeintrusiondetector.video.env.ImageUtils;
@@ -260,11 +263,23 @@ public class LegacyCameraConnectionFragment extends Fragment {
   }
 
   private int getCameraId() {
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(CameraActivity.getContext());
+    Boolean wantBackFacingCamera = sharedPreferences.getBoolean("camera_preference", true);
+
     CameraInfo ci = new CameraInfo();
     for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
       Camera.getCameraInfo(i, ci);
-      if (ci.facing == CameraInfo.CAMERA_FACING_BACK) return i;
-      if (ci.facing == CameraInfo.CAMERA_FACING_FRONT) return i;
+      if (ci.facing == CameraInfo.CAMERA_FACING_BACK) {
+        if (wantBackFacingCamera) {
+          return i;
+        }
+      }
+
+      if (ci.facing == CameraInfo.CAMERA_FACING_FRONT) {
+        if (!wantBackFacingCamera) {
+          return i;
+        }
+      }
     }
     return -1; // No camera found
   }
