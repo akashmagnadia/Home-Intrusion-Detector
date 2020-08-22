@@ -12,6 +12,7 @@ The TensorFlow file is converted to lite version so that it can be used in mobil
 All the detection for this application occurs offline.
 
 Sources used to create this project:
+<br>
 https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples
 https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/latest/training.html#preparing-workspace
 https://github.com/tensorflow/models/tree/master/research/object_detection
