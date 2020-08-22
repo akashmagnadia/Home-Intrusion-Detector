@@ -10,3 +10,9 @@ No more downloading motion detector app that gives false positives such as when 
 The algorithms in this application are trained on Tensorflow using machine learning, which is one of the best machine learning tools.
 The TensorFlow file is converted to lite version so that it can be used in mobile applications with low latency detection.
 All the detection for this application occurs offline.
+
+Sources used to create this project:
+https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples
+https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/latest/training.html#preparing-workspace
+https://github.com/tensorflow/models/tree/master/research/object_detection
+https://github.com/googlearchive/android-Camera2Basic?utm_campaign=adp_series_how_to_camera2_031016&utm_source=medium&utm_medium=blog

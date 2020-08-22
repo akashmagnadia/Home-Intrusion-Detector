@@ -304,14 +304,14 @@ public abstract class CameraActivity extends AppCompatActivity
   public static void logFirebaseAnalyticsEvents(String eventName) {
     Bundle bundle = new Bundle();
     bundle.putString("Event", eventName);
-    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    mFirebaseAnalytics.logEvent(eventName.replace(" ", "_"), bundle);
   }
 
   public static void logFirebaseAnalyticsEventsForEmails(String eventName, String Topic) {
     Bundle bundle = new Bundle();
     bundle.putString("Event", eventName);
     bundle.putString("Topic", Topic);
-    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    mFirebaseAnalytics.logEvent(eventName.replace(" ", "_"), bundle);
   }
 
   public static List<String> getEmailAddresses() {
@@ -1195,7 +1195,7 @@ public abstract class CameraActivity extends AppCompatActivity
       Bundle bundle = new Bundle();
       bundle.putString("Event", "Monitoring Active");
       bundle.putString("Delay_Timer", String.valueOf(seconds));
-      mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+      mFirebaseAnalytics.logEvent("Monitoring_Active", bundle);
       logFirebaseAnalyticsEvents("Monitoring Active");
     };
     monitoringSystemHandler.postDelayed(monitoringActiveRunnable, seconds * 1000);

@@ -108,7 +108,7 @@ public class SettingsActivity extends AppCompatActivity {
             doorbellCheckBoxPreference.setChecked(true);
 
             CheckBoxPreference doorKnockCheckBoxPreference = new CheckBoxPreference(requireContext());
-            doorKnockCheckBoxPreference.setTitle("Get Alerted for door knocks");
+            doorKnockCheckBoxPreference.setTitle("(Beta) Get Alerted for door knocks");
             doorKnockCheckBoxPreference.setKey("knock");
             doorKnockCheckBoxPreference.setSummary("An email will be sent to the contacts listed above if the sound of a door knock is detected");
             doorKnockCheckBoxPreference.setChecked(true);
