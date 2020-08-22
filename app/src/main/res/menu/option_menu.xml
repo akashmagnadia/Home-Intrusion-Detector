@@ -62,4 +62,10 @@
         app:showAsAction="never"
         android:visible="false" />
 
+    <item
+        android:id="@+id/test_mode"
+        android:title="@string/test_mode"
+        app:showAsAction="never"
+        android:visible="false" />
+
 </menu>

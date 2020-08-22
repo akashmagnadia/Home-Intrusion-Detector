@@ -7,4 +7,5 @@
 
     <string name="send_test_email">Send Test Email</string>
     <string name="privacy_policy">Privacy Policy</string>
+    <string name="test_mode">Test Mode</string>
 </resources>

@@ -145,7 +145,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     trackingOverlay.addCallback(
             canvas -> {
               tracker.draw(canvas);
-              if (isDebug()) {
+              if (isTestMode()) {
 //                tracker.drawDebug(canvas);
               }
             });

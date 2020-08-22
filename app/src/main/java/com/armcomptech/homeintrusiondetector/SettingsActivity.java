@@ -138,7 +138,7 @@ public class SettingsActivity extends AppCompatActivity {
             screen.addPreference(emailCategory);
 
             ListPreference emailTimeoutListPreference = new ListPreference(requireContext());
-            emailTimeoutListPreference.setDefaultValue(30);
+            emailTimeoutListPreference.setDefaultValue("30");
             emailTimeoutListPreference.setEntries(getResources().getStringArray(R.array.email_timeout_entries));
             emailTimeoutListPreference.setEntryValues(getResources().getStringArray(R.array.email_timeout_values));
             emailTimeoutListPreference.setKey("email_timeout");
@@ -148,7 +148,7 @@ public class SettingsActivity extends AppCompatActivity {
             emailCategory.addPreference(emailTimeoutListPreference);
 
             ListPreference maxAttachmentsListPreference = new ListPreference(requireContext());
-            maxAttachmentsListPreference.setDefaultValue(10);
+            maxAttachmentsListPreference.setDefaultValue("10");
             maxAttachmentsListPreference.setEntries(getResources().getStringArray(R.array.max_attachments_entries));
             maxAttachmentsListPreference.setEntryValues(getResources().getStringArray(R.array.max_attachments_values));
             maxAttachmentsListPreference.setKey("attachment_max_value");
@@ -159,16 +159,20 @@ public class SettingsActivity extends AppCompatActivity {
             screen.addPreference(emailCategory);
 
 
+            final PreferenceCategory otherCategory = new PreferenceCategory(requireContext());
+            otherCategory.setTitle("Other");
+            screen.addPreference(otherCategory);
+
             ListPreference autoDeletionListPreference = new ListPreference(requireContext());
-            autoDeletionListPreference.setDefaultValue(15);
+            autoDeletionListPreference.setDefaultValue("15");
             autoDeletionListPreference.setEntries(getResources().getStringArray(R.array.auto_deletion_entries));
             autoDeletionListPreference.setEntryValues(getResources().getStringArray(R.array.auto_deletion_values));
             autoDeletionListPreference.setKey("auto_deletion");
             autoDeletionListPreference.setTitle("Automatically Delete");
             autoDeletionListPreference.setSummary("Automatically delete files such as recorded media from this app. Default is 15 days");
 
-            screen.addPreference(autoDeletionListPreference);
-
+            otherCategory.addPreference(autoDeletionListPreference);
+            screen.addPreference(otherCategory);
 
             setPreferenceScreen(screen);
 

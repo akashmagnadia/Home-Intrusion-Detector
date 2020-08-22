@@ -57,14 +57,10 @@ import android.util.Log;
 import android.util.Patterns;
 import android.util.Size;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -188,13 +184,18 @@ public abstract class CameraActivity extends AppCompatActivity
 
   private Handler emailTimeoutCoolDownHandler = new Handler();
   private Boolean emailTimeoutCoolingDown = false;
+
+  private Handler lockOrientationHandler = new Handler();
+
   private static FirebaseAnalytics mFirebaseAnalytics;
 
-  private Button cancelHowToUseDialog;
+  private Boolean testMode = false;
 
-  //TODO: Turn off when releasing official software
-  public boolean isDebug() {
-    return false;
+  public boolean isTestMode() {
+    return testMode;
+  }
+  public void setTestMode(Boolean testMode) {
+    this.testMode = testMode;
   }
 
   /** Memory-map the model file in Assets. */
@@ -226,10 +227,6 @@ public abstract class CameraActivity extends AppCompatActivity
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    }
 
     mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
     Bundle bundle = new Bundle();
@@ -701,13 +698,14 @@ public abstract class CameraActivity extends AppCompatActivity
 
         // if green light for squirrel and confidence level is surpassed
         if (camera2Fragment != null) {
-          if (isDebug()) {
+          if (isTestMode()) {
             Toast.makeText(CameraActivity.this, "Detected person: " + result.getConfidence(), Toast.LENGTH_SHORT).show();
           } else {
             if (greenLightToTakePhoto) {
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                camera2Fragment.takePicture();
+                lockOrientation(1); //to prevent error where screen is rotated while picture is being taken
 
+                camera2Fragment.takePicture();
                 logFirebaseAnalyticsEvents("Took a picture");
               }
             }
@@ -718,10 +716,13 @@ public abstract class CameraActivity extends AppCompatActivity
             logFirebaseAnalyticsEventsForEmails("Send Email", "Person Detected");
           }
         } else {
-          if (isDebug()) {
+          if (isTestMode()) {
             Toast.makeText(CameraActivity.this, "Detected person: " + result.getConfidence(), Toast.LENGTH_SHORT).show();
           } else {
             if (greenLightToTakePhoto) {
+              //to prevent error where screen is rotated while picture is being taken
+              lockOrientation(1);
+
               ((LegacyCameraConnectionFragment) fragment).takePicture();
               logFirebaseAnalyticsEvents("Took a picture");
             }
@@ -775,10 +776,9 @@ public abstract class CameraActivity extends AppCompatActivity
 
     menu.add(0, R.id.settings, 0, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_settings_24_black), "Settings"));
     menu.add(0, R.id.testEmail, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_email_24_black), "Send Test Email"));
-    menu.add(0, R.id.aboutThisApp, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_help_24_black), "How To Use"));
-    menu.add(0, R.id.privacy_policy, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_lock_24_black), "Privacy Policy"));
-
-
+    menu.add(0, R.id.aboutThisApp, 2, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_help_24_black), "How To Use"));
+    menu.add(0, R.id.privacy_policy, 3, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_lock_24_black), "Privacy Policy"));
+    menu.add(0, R.id.test_mode, 4, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_warning_24_black), "Test Mode (Off)"));
     return true;
   }
 
@@ -795,7 +795,6 @@ public abstract class CameraActivity extends AppCompatActivity
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
-
     if (item.isChecked()) {
       item.setChecked(false);
     } else {
@@ -855,6 +854,16 @@ public abstract class CameraActivity extends AppCompatActivity
         Toast.makeText(CameraActivity.this, "Monitoring System will be active in 2 minutes", Toast.LENGTH_SHORT).show();
         delayedMonitoringSystemOn(120);
         break;
+
+      case R.id.test_mode:
+        //works like a toggle
+        if (isTestMode()) {
+          setTestMode(false);
+          item.setTitle(menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_warning_24_black), "Test Mode (Off)"));
+        } else {
+          setTestMode(true);
+          item.setTitle(menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_warning_24_black), "Test Mode (On)"));
+        }
 
       default:
         break;
@@ -1090,7 +1099,7 @@ public abstract class CameraActivity extends AppCompatActivity
                     switch (result.foundCommand) {
                       case "glass_breaking":
                         if (glassBreakingCheckBox && monitoringSystemActive) {
-                          if (isDebug()) {
+                          if (isTestMode()) {
                             Toast.makeText(CameraActivity.this, "Detected glass_breaking: " + result.score, Toast.LENGTH_SHORT).show();
                           } else {
                             sendEmail("Home Intrusion Alert - Glass Breaking Detected",
@@ -1104,7 +1113,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
                       case "doorbell":
                         if (doorbellCheckBox && monitoringSystemActive) {
-                          if (isDebug()) {
+                          if (isTestMode()) {
                             Toast.makeText(CameraActivity.this, "Detected doorbell: " + result.score, Toast.LENGTH_SHORT).show();
                           } else {
                             sendEmail("Home Intrusion Alert - Doorbell Detected",
@@ -1118,7 +1127,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
                       case "knock":
                         if (knockCheckBox && monitoringSystemActive) {
-                          if (isDebug()) {
+                          if (isTestMode()) {
                             Toast.makeText(CameraActivity.this, "Detected knock: " + result.score, Toast.LENGTH_SHORT).show();
                           } else {
                             sendEmail("Home Intrusion Alert - knock Detected",
@@ -1171,9 +1180,21 @@ public abstract class CameraActivity extends AppCompatActivity
   private void activateEmailTimeoutCooldown(long seconds) {
     Runnable emailTimeoutCooldownRunnable = () -> {
       emailTimeoutCoolingDown = false;
-      // after x seconds this will set to true so that email can be sent again
+      // after x seconds this will set to false so that email can be sent again
     };
     emailTimeoutCoolDownHandler.postDelayed(emailTimeoutCooldownRunnable, seconds * 1000);
+  }
+
+  private void lockOrientation(long seconds) {
+    //if handler is still running from before then clear it
+    lockOrientationHandler = new Handler();
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED); //lock it to whatever orientation is it in
+
+    //lock orientation for x seconds
+    Runnable lockOrientationRunnable = () -> {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR); //back to regular after x seconds
+    };
+    lockOrientationHandler.postDelayed(lockOrientationRunnable, seconds * 1000);
   }
 
   private void delayedMonitoringSystemOn(long seconds) {
