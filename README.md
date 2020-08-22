@@ -14,6 +14,9 @@ All the detection for this application occurs offline.
 Sources used to create this project:
 <br>
 https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples
+<br>
 https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/latest/training.html#preparing-workspace
+<br>
 https://github.com/tensorflow/models/tree/master/research/object_detection
+<br>
 https://github.com/googlearchive/android-Camera2Basic?utm_campaign=adp_series_how_to_camera2_031016&utm_source=medium&utm_medium=blog
