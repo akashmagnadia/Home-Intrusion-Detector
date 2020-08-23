@@ -82,7 +82,7 @@
             android:key="camera_preference"
             android:title="Camera Preference"
             android:summaryOn="Using Back Camera for monitoring"
-            android:summaryOff="Using On Camera for monitoring"/>
+            android:summaryOff="Using Front Camera for monitoring"/>
 
     </PreferenceCategory>
 

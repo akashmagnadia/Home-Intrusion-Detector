@@ -824,9 +824,9 @@ public abstract class CameraActivity extends AppCompatActivity
 
     switch (id) {
       case R.id.aboutThisApp:
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.how_to_use_view);
-        dialog.show();
+        Dialog dialogHowToUse = new Dialog(this);
+        dialogHowToUse.setContentView(R.layout.how_to_use_view);
+        dialogHowToUse.show();
 
         logFirebaseAnalyticsEvents("Read about this app");
 
@@ -856,9 +856,16 @@ public abstract class CameraActivity extends AppCompatActivity
         logFirebaseAnalyticsEvents("Privacy Policy");
         break;
 
+      case R.id.activate:
+        if (isTestMode()) {
+          Dialog dialogWarning = new Dialog(this);
+          dialogWarning.setContentView(R.layout.warning_testmode);
+          dialogWarning.show();
+        }
+        break;
+
       case R.id.instantOn:
         delayedMonitoringSystemOn(1);
-
         break;
 
       case R.id.delay30secondOn:
@@ -1220,7 +1227,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
   private void delayedMonitoringSystemOn(long seconds) {
     //TODO: if system is active tell user
-    if (getEmailAddresses().isEmpty()) {
+    if (getEmailAddresses().isEmpty() && !isTestMode()) {
       askForValidEmailAddress(false, seconds);
     } else {
       delayedMonitoringSystemOnHelper(seconds);

@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <meta-data
+        android:name="firebase_analytics_collection_deactivated"
+        android:value="@bool/FIREBASE_ANALYTICS_DEACTIVATED"/>
+
 
     <uses-feature
         android:name="android.hardware.camera"

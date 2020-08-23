@@ -9,8 +9,8 @@ android {
         applicationId "com.armcomptech.homeintrusiondetector"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 2
-        versionName "1.1"
+        versionCode 4
+        versionName "1.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -18,6 +18,7 @@ android {
     buildTypes {
         debug {
             manifestPlaceholders = [analytics_deactivated: "true"]
+            resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "true")
         }
         release {
             // Enables code shrinking, obfuscation, and optimization for only
@@ -29,6 +30,7 @@ android {
             shrinkResources true
 
             manifestPlaceholders = [analytics_deactivated: "false"]
+            resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "false")
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
