@@ -127,6 +127,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private FrameLayout frameLayout;
 
   private boolean greenLightToTakePhoto = true;
+  private boolean phoneRotating = false;
 
   CameraConnectionFragment camera2Fragment;
   Fragment fragment;
@@ -180,7 +181,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private int autoDeletionDays;
 
   private Handler monitoringSystemHandler = new Handler();
-  private Boolean monitoringSystemActive = false;
+  private Boolean monitoringSystemActive;
 
   private Handler emailTimeoutCoolDownHandler = new Handler();
   private Boolean emailTimeoutCoolingDown = false;
@@ -239,6 +240,7 @@ public abstract class CameraActivity extends AppCompatActivity
     setSupportActionBar(toolbar);
     Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(true);
     getSupportActionBar().setTitle("(Inactive) Home Intrusion Detector");
+    monitoringSystemActive = false;
 
     if (hasPermission()) {
       setFragment();
@@ -710,6 +712,8 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   public void checkForObject(List<Classifier.Recognition> results) {
+    int secondsToWaitToRotate = 3;
+
     for (final Classifier.Recognition result : results) {
 
       if (result.getTitle().equals("person")
@@ -722,12 +726,13 @@ public abstract class CameraActivity extends AppCompatActivity
           if (isTestMode()) {
             Toast.makeText(CameraActivity.this, "Detected person: " + result.getConfidence(), Toast.LENGTH_SHORT).show();
           } else {
-            if (greenLightToTakePhoto) {
+            if (greenLightToTakePhoto && !phoneRotating) {
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                lockOrientation(1); //to prevent error where screen is rotated while picture is being taken
+                lockOrientation(secondsToWaitToRotate); //to prevent error where screen is rotated while picture is being taken
 
                 camera2Fragment.takePicture();
                 logFirebaseAnalyticsEvents("Took a picture");
+                LOGGER.d("Took a picture " + this);
               }
             }
 
@@ -740,12 +745,13 @@ public abstract class CameraActivity extends AppCompatActivity
           if (isTestMode()) {
             Toast.makeText(CameraActivity.this, "Detected person: " + result.getConfidence(), Toast.LENGTH_SHORT).show();
           } else {
-            if (greenLightToTakePhoto) {
+            if (greenLightToTakePhoto && !phoneRotating) {
               //to prevent error where screen is rotated while picture is being taken
-              lockOrientation(1);
+              lockOrientation(secondsToWaitToRotate); //to prevent error where screen is rotated while picture is being taken
 
               ((LegacyCameraConnectionFragment) fragment).takePicture();
               logFirebaseAnalyticsEvents("Took a picture");
+              LOGGER.d("Took a picture " + this);
             }
 
             sendEmail("Home Intrusion Alert - person Detected",
@@ -918,6 +924,9 @@ public abstract class CameraActivity extends AppCompatActivity
       if (!emailTimeoutCoolingDown) {
         List<File> toSendFileNameList = getFileNameListToSend();
         new SendMailTask(this).execute(fromEmail, fromPassword, getEmailAddresses(), Subject, Body, toSendFileNameList);
+
+        logFirebaseAnalyticsEventsForEmails("Send Email", "Detection Email");
+        LOGGER.d("Send Detection Email" + this);
 
         emailTimeoutCoolingDown = true;
         activateEmailTimeoutCooldown(emailTimeoutSeconds); //default is 30
@@ -1217,10 +1226,15 @@ public abstract class CameraActivity extends AppCompatActivity
     //if handler is still running from before then clear it
     lockOrientationHandler = new Handler();
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED); //lock it to whatever orientation is it in
+    phoneRotating = true;
+    LOGGER.d("Orientation locked for " + seconds + " seconds "+ this);
 
     //lock orientation for x seconds
     Runnable lockOrientationRunnable = () -> {
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR); //back to regular after x seconds
+      phoneRotating = false;
+
+      LOGGER.d("Orientation unlocked " + this);
     };
     lockOrientationHandler.postDelayed(lockOrientationRunnable, seconds * 1000);
   }
@@ -1237,6 +1251,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private void delayedMonitoringSystemOnHelper(long seconds) {
     Runnable monitoringActiveRunnable = () -> {
       monitoringSystemActive = true;
+
       getSupportActionBar().setTitle("(Active) Home Intrusion Detector"); //change the title to notify user
       Toast.makeText(CameraActivity.this, "Monitoring System in now activate", Toast.LENGTH_SHORT).show();
 

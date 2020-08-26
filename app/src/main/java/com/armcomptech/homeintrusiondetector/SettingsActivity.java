@@ -1,10 +1,8 @@
 package com.armcomptech.homeintrusiondetector;
 
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +15,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import static com.armcomptech.homeintrusiondetector.CameraActivity.isValidEmail;
@@ -68,17 +67,15 @@ public class SettingsActivity extends AppCompatActivity {
             enterEmailHere_EditText.setDialogTitle("Click Here to add email address");
             enterEmailHere_EditText.setSummary("Add Email Address(es) where you would like to be alerted");
             enterEmailHere_EditText.setPositiveButtonText("Add Email");
-            enterEmailHere_EditText.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if (isValidEmail(String.valueOf((String) newValue))) {
-                        CameraActivity.addEmailAddress((String) newValue);
-                    } else {
-                        Toast.makeText(getContext(), "Enter a valid email Address", Toast.LENGTH_LONG).show();
-                    }
-
-                    return false;
+            enterEmailHere_EditText.setOnPreferenceChangeListener((Preference.OnPreferenceChangeListener) (preference, newValue) -> {
+                if (isValidEmail(String.valueOf((String) newValue))) {
+                    CameraActivity.addEmailAddress((String) newValue);
+                    Snackbar.make(requireView(), newValue + " has been added to the email list", 4000).show();
+                } else {
+                    Snackbar.make(requireView(), "Enter a valid email Address", 1500).show();
                 }
+
+                return false;
             });
             screen.addPreference(enterEmailHere_EditText);
 
@@ -202,9 +199,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         public void cameraSwitchWait(long milliseconds) {
-            Runnable lockOrientationRunnable = () -> {
-                ProcessPhoenix.triggerRebirth(CameraActivity.getContext());
-            };
+            Runnable lockOrientationRunnable = () -> ProcessPhoenix.triggerRebirth(CameraActivity.getContext());
             cameraSwitchHandler.postDelayed(lockOrientationRunnable, milliseconds);
         }
     }

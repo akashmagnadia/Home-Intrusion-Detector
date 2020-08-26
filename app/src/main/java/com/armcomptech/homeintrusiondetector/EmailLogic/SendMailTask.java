@@ -14,14 +14,13 @@ public class SendMailTask extends AsyncTask {
 
     public SendMailTask(Activity activity) {
         sendMailActivity = activity;
-
     }
 
     protected void onPreExecute() {
         statusDialog = new ProgressDialog(sendMailActivity);
         statusDialog.setMessage("Getting ready...");
         statusDialog.setIndeterminate(false);
-        statusDialog.setCancelable(false);
+        statusDialog.setCancelable(true);
         statusDialog.show();
     }
 
