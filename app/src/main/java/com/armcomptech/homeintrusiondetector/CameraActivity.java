@@ -107,6 +107,9 @@ public abstract class CameraActivity extends AppCompatActivity
 
   private static final Logger LOGGER = new Logger();
 
+  //TODO: Change disableFirebaseLogging to false when releasing
+  private static Boolean disableFirebaseLogging = true;
+
   private static final int PERMISSIONS_REQUEST = 1;
 
   private static final String PERMISSION_RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
@@ -229,10 +232,12 @@ public abstract class CameraActivity extends AppCompatActivity
     super.onCreate(null);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-    mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-    Bundle bundle = new Bundle();
-    bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App Opened");
-    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, bundle);
+    if (!disableFirebaseLogging) {
+      mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+      Bundle bundle = new Bundle();
+      bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "App Opened");
+      mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, bundle);
+    }
 
     setContentView(R.layout.activity_camera);
     Toolbar toolbar = findViewById(R.id.toolbar);
@@ -301,16 +306,20 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   public static void logFirebaseAnalyticsEvents(String eventName) {
-    Bundle bundle = new Bundle();
-    bundle.putString("Event", eventName);
-    mFirebaseAnalytics.logEvent(eventName.replace(" ", "_"), bundle);
+    if (!disableFirebaseLogging) {
+      Bundle bundle = new Bundle();
+      bundle.putString("Event", eventName);
+      mFirebaseAnalytics.logEvent(eventName.replace(" ", "_"), bundle);
+    }
   }
 
   public static void logFirebaseAnalyticsEventsForEmails(String eventName, String Topic) {
-    Bundle bundle = new Bundle();
-    bundle.putString("Event", eventName);
-    bundle.putString("Topic", Topic);
-    mFirebaseAnalytics.logEvent(eventName.replace(" ", "_"), bundle);
+    if (!disableFirebaseLogging) {
+      Bundle bundle = new Bundle();
+      bundle.putString("Event", eventName);
+      bundle.putString("Topic", Topic);
+      mFirebaseAnalytics.logEvent(eventName.replace(" ", "_"), bundle);
+    }
   }
 
   public static List<String> getEmailAddresses() {
@@ -319,12 +328,16 @@ public abstract class CameraActivity extends AppCompatActivity
 
   public static void addEmailAddress(String emailAddress) {
     emailAddresses.add(emailAddress);
-    logFirebaseAnalyticsEvents("Added Email Address");
+    if (!disableFirebaseLogging) {
+      logFirebaseAnalyticsEvents("Added Email Address");
+    }
   }
 
   public static void removeEmailAddress(String emailAddress) {
     emailAddresses.remove(emailAddress);
-    logFirebaseAnalyticsEvents("Removed Email Address");
+    if (!disableFirebaseLogging) {
+      logFirebaseAnalyticsEvents("Removed Email Address");
+    }
   }
 
   public void checkForSettings() {
@@ -1256,11 +1269,12 @@ public abstract class CameraActivity extends AppCompatActivity
       Toast.makeText(CameraActivity.this, "Monitoring System in now activate", Toast.LENGTH_SHORT).show();
 
       //log events in firebase
-      Bundle bundle = new Bundle();
-      bundle.putString("Event", "Monitoring Active");
-      bundle.putString("Delay_Timer", String.valueOf(seconds));
-      mFirebaseAnalytics.logEvent("Monitoring_Active", bundle);
-      logFirebaseAnalyticsEvents("Monitoring Active");
+      if (!disableFirebaseLogging) {
+        Bundle bundle = new Bundle();
+        bundle.putString("Event", "Monitoring Active");
+        bundle.putString("Delay_Timer", String.valueOf(seconds));
+        mFirebaseAnalytics.logEvent("Monitoring_Active", bundle);
+      }
     };
     monitoringSystemHandler.postDelayed(monitoringActiveRunnable, seconds * 1000);
   }
