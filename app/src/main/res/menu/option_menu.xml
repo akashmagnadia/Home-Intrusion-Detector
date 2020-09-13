@@ -39,6 +39,12 @@
     </item>
 
     <item
+        android:id="@+id/deactivate"
+        android:title="Deactivate"
+        app:showAsAction="never"
+        android:visible="true"/>
+
+    <item
         android:id="@+id/settings"
         android:title="@string/setting"
         app:showAsAction="never"

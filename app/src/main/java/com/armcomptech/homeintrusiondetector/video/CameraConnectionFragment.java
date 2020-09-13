@@ -712,29 +712,13 @@ public class CameraConnectionFragment extends Fragment {
                             previewRequest, captureCallback, backgroundHandler);
                   } catch (final CameraAccessException e) {
                     LOGGER.e(e, "Exception!");
+                    promptToGoToSettings();
                   }
                 }
 
                 @Override
                 public void onConfigureFailed(final CameraCaptureSession cameraCaptureSession) {
-                  AlertDialog.Builder builder
-                          = new AlertDialog
-                          .Builder(CameraActivity.getContext());
-                  builder.setMessage("Sometimes going to the settings and coming back helps solve this issue");
-                  builder.setTitle("Camera Preview Build Failed!");
-                  builder.setCancelable(false);
-                  builder
-                          .setPositiveButton(
-                                  "Open Settings",
-                                  (dialog, which) -> startActivity(new Intent(CameraActivity.getContext(), SettingsActivity.class)));
-
-                  builder
-                          .setNegativeButton(
-                                  "Cancel",
-                                  (dialog, which) -> dialog.cancel());
-
-                  AlertDialog alertDialog = builder.create();
-                  alertDialog.show();
+                  promptToGoToSettings();
                 }
               },
               null);
@@ -742,6 +726,27 @@ public class CameraConnectionFragment extends Fragment {
       ProcessPhoenix.triggerRebirth(CameraActivity.getContext());
       LOGGER.e(e, "Exception!");
     }
+  }
+
+  public void promptToGoToSettings() {
+    AlertDialog.Builder builder
+            = new AlertDialog
+            .Builder(CameraActivity.getContext());
+    builder.setMessage("Sometimes going to the settings and coming back helps solve this issue");
+    builder.setTitle("Camera Preview Build Failed!");
+    builder.setCancelable(false);
+    builder
+            .setPositiveButton(
+                    "Open Settings",
+                    (dialog, which) -> startActivity(new Intent(CameraActivity.getContext(), SettingsActivity.class)));
+
+    builder
+            .setNegativeButton(
+                    "Cancel",
+                    (dialog, which) -> dialog.cancel());
+
+    AlertDialog alertDialog = builder.create();
+    alertDialog.show();
   }
 
   /**
@@ -778,10 +783,6 @@ public class CameraConnectionFragment extends Fragment {
     }
     textureView.setTransform(matrix);
   }
-
-
-
-
 
   /**
    * Initiate a still image capture.

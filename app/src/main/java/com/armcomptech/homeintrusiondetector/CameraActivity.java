@@ -18,6 +18,7 @@ package com.armcomptech.homeintrusiondetector;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
@@ -60,6 +61,7 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -108,8 +110,9 @@ public abstract class CameraActivity extends AppCompatActivity
   private static final Logger LOGGER = new Logger();
 
   //TODO: Change disableFirebaseLogging to false when releasing
-  private static Boolean disableFirebaseLogging = true;
+  private static Boolean disableFirebaseLogging = false;
 
+  //TODO: Look into camera2video for video recording
   private static final int PERMISSIONS_REQUEST = 1;
 
   private static final String PERMISSION_RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
@@ -135,7 +138,12 @@ public abstract class CameraActivity extends AppCompatActivity
   CameraConnectionFragment camera2Fragment;
   Fragment fragment;
 
-
+  static MenuItem activateMenuItem = null;
+  static MenuItem instantOnMenuItem = null;
+  static MenuItem delay30secondOnMenuItem = null;
+  static MenuItem delay1minuteOnMenuItem = null;
+  static MenuItem delay2minuteOnMenuItem = null;
+  static MenuItem deactivateMenuItem = null;
 
   static List<String> emailAddresses;
   // Constants that control the behavior of the recognition code and model
@@ -228,6 +236,7 @@ public abstract class CameraActivity extends AppCompatActivity
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
 
+    //TODO: Saved instance, save the instance when activity is closed and then get the variables back here if it is not null
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -741,7 +750,7 @@ public abstract class CameraActivity extends AppCompatActivity
           } else {
             if (greenLightToTakePhoto && !phoneRotating) {
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                lockOrientation(secondsToWaitToRotate); //to prevent error where screen is rotated while picture is being taken
+//                lockOrientation(secondsToWaitToRotate); //to prevent error where screen is rotated while picture is being taken
 
                 camera2Fragment.takePicture();
                 logFirebaseAnalyticsEvents("Took a picture");
@@ -760,7 +769,7 @@ public abstract class CameraActivity extends AppCompatActivity
           } else {
             if (greenLightToTakePhoto && !phoneRotating) {
               //to prevent error where screen is rotated while picture is being taken
-              lockOrientation(secondsToWaitToRotate); //to prevent error where screen is rotated while picture is being taken
+//              lockOrientation(secondsToWaitToRotate); //to prevent error where screen is rotated while picture is being taken
 
               ((LegacyCameraConnectionFragment) fragment).takePicture();
               logFirebaseAnalyticsEvents("Took a picture");
@@ -835,11 +844,6 @@ public abstract class CameraActivity extends AppCompatActivity
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
-    if (item.isChecked()) {
-      item.setChecked(false);
-    } else {
-      item.setChecked(true);
-    }
 
     switch (id) {
       case R.id.aboutThisApp:
@@ -881,25 +885,87 @@ public abstract class CameraActivity extends AppCompatActivity
           dialogWarning.setContentView(R.layout.warning_testmode);
           dialogWarning.show();
         }
+
+        if (activateMenuItem == null) {
+          activateMenuItem = item;
+        }
+
         break;
 
       case R.id.instantOn:
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED); //lock it to whatever orientation is it in
         delayedMonitoringSystemOn(1);
+
+        if (instantOnMenuItem == null) {
+          instantOnMenuItem = item;
+        }
+        activateMenuItem.setVisible(false);
+
+        if (deactivateMenuItem != null) {
+          deactivateMenuItem.setVisible(true);
+        }
         break;
 
       case R.id.delay30secondOn:
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED); //lock it to whatever orientation is it in
         Toast.makeText(CameraActivity.this, "Monitoring System will be active in 30 seconds", Toast.LENGTH_SHORT).show();
         delayedMonitoringSystemOn(30);
+
+        if (delay30secondOnMenuItem == null) {
+          delay30secondOnMenuItem = item;
+        }
+        activateMenuItem.setVisible(false);
+
+        if (deactivateMenuItem != null) {
+          deactivateMenuItem.setVisible(true);
+        }
         break;
 
       case R.id.delay1minuteOn:
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED); //lock it to whatever orientation is it in
         Toast.makeText(CameraActivity.this, "Monitoring System will be active in 1 minute", Toast.LENGTH_SHORT).show();
         delayedMonitoringSystemOn(60);
+
+        if (delay1minuteOnMenuItem == null) {
+          delay1minuteOnMenuItem = item;
+        }
+        activateMenuItem.setVisible(false);
+
+        if (deactivateMenuItem != null) {
+          deactivateMenuItem.setVisible(true);
+        }
         break;
 
       case R.id.delay2minuteOn:
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED); //lock it to whatever orientation is it in
         Toast.makeText(CameraActivity.this, "Monitoring System will be active in 2 minutes", Toast.LENGTH_SHORT).show();
         delayedMonitoringSystemOn(120);
+
+        if (delay2minuteOnMenuItem == null) {
+          delay2minuteOnMenuItem = item;
+        }
+        activateMenuItem.setVisible(false);
+
+        if (deactivateMenuItem != null) {
+          deactivateMenuItem.setVisible(true);
+        }
+        break;
+
+      case R.id.deactivate:
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR); //back to regular after x seconds
+        Toast.makeText(CameraActivity.this, "Monitoring System is deactivated now", Toast.LENGTH_LONG).show();
+
+        if (deactivateMenuItem == null) {
+          deactivateMenuItem = item;
+        }
+        deactivateMenuItem.setVisible(false);
+
+        if (activateMenuItem != null) {
+          activateMenuItem.setVisible(true);
+        }
+
+        getSupportActionBar().setTitle("(Inactive) Home Intrusion Detector");
+        monitoringSystemActive = false;
         break;
 
       case R.id.test_mode:
@@ -1290,19 +1356,18 @@ public abstract class CameraActivity extends AppCompatActivity
 
     alert.setView(edittext);
 
-    alert.setPositiveButton("Add Email", new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int whichButton) {
-        if (isValidEmail(String.valueOf(edittext.getText()))) {
-          addEmailAddress(String.valueOf(edittext.getText()));
-          if (!testEmail) {
-            delayedMonitoringSystemOnHelper(seconds);
-          } else {
-            //if asking email for test email
-            sendEmail("Test Subject", "Test Body", testEmail);
-          }
+    alert.setPositiveButton("Add Email", (dialog, whichButton) -> {
+      String email = String.valueOf(edittext.getText()).replace(" ", "");
+      if (isValidEmail(email)) {
+        addEmailAddress(email);
+        if (!testEmail) {
+          delayedMonitoringSystemOnHelper(seconds);
         } else {
-          Toast.makeText(CameraActivity.this, "Enter a valid email Address", Toast.LENGTH_LONG).show();
+          //if asking email for test email
+          sendEmail("Test Subject", "Test Body", testEmail);
         }
+      } else {
+        Toast.makeText(CameraActivity.this, "Enter a valid email Address", Toast.LENGTH_LONG).show();
       }
     });
 
